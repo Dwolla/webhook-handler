@@ -1,0 +1,9 @@
+.DS_Store
+event.json
+src/*.js
+
+.idea/
+.serverless/
+.vscode/
+.webpack/
+node_modules/

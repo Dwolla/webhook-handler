@@ -1,0 +1,8 @@
+theme: night
+theme-override: assets/PITCHME.css
+logo: assets/logo.png
+logo-postion: top-left
+layout: center
+footnote: "Dwolla | Efficient & Secure ACH Payments"
+published: true
+transition: none

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "strict": true,
+    "target": "es5"
+  },
+  "include": ["."]
+}

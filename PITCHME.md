@@ -169,10 +169,11 @@ Lessons Learned
 @snap[west list-content span-100]
 @ul
 
-- CloudWatch is clunky, expensive, defaults retention to forever
+- CloudWatch is clunky, defaults retention to forever
 - Lambda errors elusive, CloudWatch Insights helps
 - Follow Best Practices for avoiding throttling, dead-letter queues, idempotency, batch size
 - Audit dependencies to keep bundle size and memory usage low (e.g. HTTP libs)
+- Use Chrome dev tools to debug Node memory usage
 - Understand AWS Account Limits (IAM, Lambda, SQS, CloudFormation, etc.)
   @ulend
   @snapend

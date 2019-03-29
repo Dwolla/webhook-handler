@@ -13,5 +13,5 @@ module.exports = {
       "org.label-schema.vcs-ref": "${env:GIT_COMMIT, 'n/a'}"
     }
   },
-  functions: { func: { handler: "src/handler.handle" } }
+  functions: { func: { handler: "src/handler.handle", tracing: true } }
 }

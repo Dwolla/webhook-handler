@@ -1,6 +1,6 @@
 # Serverless Webhooks
 
-[Rocky Warren](https://rocky.dev/) [@therockstorm](https://github.com/therockstorm)  
+[Rocky Warren](https://rockywarren.com/) [@therockstorm](https://github.com/therockstorm)  
 Principal Software Engineer [@Dwolla](https://twitter.com/dwolla)
 
 ---
@@ -52,7 +52,7 @@ Original Architecture
 
 Note:
 
-- Partners create webhook subscriptions indicating URL call
+- Partners create webhook subscriptions indicating URL for us to call
 - `Subscriptions` receives events from services and publishes to single, shared queue
 - `Handler`s read off queue, call partner API, and publish result
 - `Subscriptions` receives and stores result
@@ -71,6 +71,7 @@ Limitations
   - Partner processes (notifications, etc.) are then delayed
 - One slow-to-respond or high-volume partner affects everyone
 - Scaling handlers causes parallel API calls for everyone
+- Non-trivial per-partner configuration
   @ulend
   @snapend
 
@@ -128,8 +129,8 @@ Rollout
 @snap[west list-content span-100]
 @ul
 
-- Whitelist test partners in Sandbox
-- Enable globally in Sandbox (single queue to reduce costs)
+- Whitelist test partners in Sandbox via Feature Flags
+- Enable globally in Sandbox
 - Whitelist beta partners in Prod
 - Monitor, gather feedback
 - Migrate in batches based on webhook volume
@@ -146,10 +147,10 @@ Lessons Learned
 @snap[west list-content span-100]
 @ul
 
-- TypeScript, Serverless Framework, `aws-cdk` are great
-- Think twice before dynamically provisioning resources, prepare to retry
-- Try to keep test and prod environments the same (single Sandbox queue masked issues)
-- Utilize tagging and Resource Groups to manage lots of resources
+- Audit dependencies to keep bundle size and memory usage low (e.g. HTTP libs)
+- CloudWatch can get expensive, defaults retention to forever
+- Follow Best Practices for avoiding throttling, dead-letter queues, idempotency, batch size
+- Lambda errors elusive, CloudWatch Insights helps
 - Include high cardinality values in log messages, take charge of monitors/alerts
   @ulend
   @snapend
@@ -168,26 +169,20 @@ Lessons Learned
 
 @snap[west list-content span-100]
 @ul
-
-- CloudWatch is clunky, expensive, defaults retention to forever
-- Lambda errors elusive, CloudWatch Insights helps
-- Follow Best Practices for avoiding throttling, dead-letter queues, idempotency, batch size
-- Audit dependencies to keep bundle size and memory usage low (e.g. HTTP libs)
-- Understand AWS Account Limits (IAM, Lambda, SQS, CloudFormation, etc.)
+- One Lambda serving multiple queues limits configuration options
+- TypeScript, Serverless Framework, `aws-cdk` are great
+- Think twice before dynamically provisioning resources, concurrency, prepare to retry
+- Understand AWS Account Limits (IAM, Lambda, SQS, CloudFormation Stacks, etc.)
+- Utilize tagging to manage lots of resources
   @ulend
   @snapend
-
-Note:
-
-- TypeScript: Painter's Tape for JavaScript
-- 404 from customer, logs contained id, url, status with no issues
 
 ---
 
 @snap[north]
-Result
+Results
 @snapend
-@title[Result]
+@title[Results]
 
 @snap[west list-content span-100]
 @ul
@@ -195,6 +190,25 @@ Result
 - Infinitely scalable, from 60 min delay at peak load to under one
 - Configurable to individual partner's needs
 - Low costs and maintenance, free when not in use
+  @ulend
+  @snapend
+
+---
+
+@snap[north]
+Free Code!
+@snapend
+@title[Free Code!]
+
+@snap[west list-content span-100]
+@ul[](false)
+
+- [webhook-provisioner](https://github.com/Dwolla/webhook-provisioner): Provision AWS resources
+- [webhook-handler](https://github.com/Dwolla/webhook-handler): POST webhooks to APIs
+- [webhook-receiver](https://github.com/Dwolla/webhook-receiver): Receive and verify webhooks
+- [cloudwatch-alarm-to-slack](https://github.com/Dwolla/cloudwatch-alarm-to-slack): Forward CloudWatch Alarms to Slack
+- [sqs-mv](https://github.com/Dwolla/sqs-mv): Move SQS messages from one queue to another
+- [generator-serverless](https://github.com/therockstorm/generator-serverless): Serverless Yeoman generator
   @ulend
   @snapend
 

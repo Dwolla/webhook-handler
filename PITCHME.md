@@ -169,6 +169,7 @@ Lessons Learned
 
 @snap[west list-content span-100]
 @ul
+
 - One Lambda serving multiple queues limits configuration options
 - TypeScript, Serverless Framework, `aws-cdk` are great
 - Think twice before dynamically provisioning resources, concurrency, prepare to retry

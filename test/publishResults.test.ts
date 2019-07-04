@@ -55,33 +55,32 @@ describe("publishResults", () => {
     })
   })
 
-  it("throw on error sending error batch", async () => {
+  it("try 3 times and then throw", async () => {
     const id = "10"
     const rs = [{ req: { event: { id } } }] as Res[]
     const result = [{ id: 1 }]
     const resultEs = [{ id: 2 }]
     const errorEs = [{ id: 3 }]
     sendMessageBatch.mockReturnValue({
-      promise: () => ({ Successful: [], Failed: [{ Id: id }] })
+      promise: () => ({ Failed: [{ Id: id }], Successful: [] })
     })
     partition.mockReturnValue([result, [], []])
     toResult.mockReturnValue(resultEs)
     toRequeue.mockReturnValue([])
-    toError.mockReturnValueOnce(errorEs)
+    toError.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(
       new Error("Failed to send error batch.")
     )
 
+    const args = { Entries: resultEs, QueueUrl: RESULT_URL }
+
     expect(partition).toHaveBeenCalledWith(rs)
     expect(toResult).toHaveBeenCalledWith(result)
     expect(toError).toHaveBeenCalledWith(rs.map(e => e.req))
-    expect(sendMessageBatch).toHaveBeenCalledTimes(2)
-    expect(sendMessageBatch).toHaveBeenCalledWith({
-      Entries: resultEs,
-      QueueUrl: RESULT_URL
-    })
-    expect(sendMessageBatch).toHaveBeenCalledWith({
+    expect(sendMessageBatch).toHaveBeenCalledTimes(4)
+    expect(sendMessageBatch).toHaveBeenCalledWith(args)
+    expect(sendMessageBatch).lastCalledWith({
       Entries: errorEs,
       QueueUrl: ERROR_URL
     })

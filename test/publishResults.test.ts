@@ -70,7 +70,7 @@ describe("publishResults", () => {
     toError.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(
-      new Error("Failed to send error batch.")
+      new Error("Failed to send error batch")
     )
 
     const args = { Entries: resultEs, QueueUrl: RESULT_URL }

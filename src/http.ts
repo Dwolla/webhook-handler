@@ -21,7 +21,7 @@ export const post = (body: string, opts: RequestOptions): Promise<IHttp> =>
     if (opts.timeout) {
       timer = setTimeout(() => {
         req.abort()
-        rej(new Error(`Exceeded ${opts.timeout}ms timeout.`))
+        rej(new Error(`Exceeded ${opts.timeout}ms timeout`))
       }, opts.timeout)
     }
     req.on("error", err => (req.aborted ? null : rej(err)))

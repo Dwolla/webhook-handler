@@ -53,9 +53,7 @@ const RECORD = (id: string): SQSRecord => ({
 
 const EVENT = (): SQSEvent => {
   const rs: SQSRecord[] = []
-  for (let i = 0; i < 2; i++) {
-    rs.push(RECORD(`id-${i}`))
-  }
+  for (let i = 0; i < 2; i++) rs.push(RECORD(`id-${i}`))
   return { Records: rs }
 }
 

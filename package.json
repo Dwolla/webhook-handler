@@ -21,11 +21,11 @@
   },
   "devDependencies": {
     "@types/p-limit": "^2.2.0",
-    "aws-sdk": "^2.488.0",
+    "aws-sdk": "^2.489.0",
     "husky": "^3.0.0",
     "skripts": "0.0.16",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.3"
   },
   "husky": {
     "hooks": {

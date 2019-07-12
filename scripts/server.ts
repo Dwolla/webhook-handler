@@ -50,7 +50,7 @@ const handleReq = async (
     }
     const func = FUNCS.find(f => f.path === url)
     return writeRes(
-      func ? await func.fn(evt) : { statusCode: 400, body: "Path not found." },
+      func ? await func.fn(evt) : { statusCode: 400, body: "Path not found" },
       res
     )
   } catch (e) {

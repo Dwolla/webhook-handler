@@ -7,7 +7,7 @@ import { Req, Res } from "."
 import { errorQueueUrl, partnerQueueUrl, resultQueueUrl } from "./config"
 import { partition, toError, toRequeue, toResult } from "./mapper"
 
-export const BATCH_ERROR = "Failed to send error batch."
+export const BATCH_ERROR = "Failed to send error batch"
 
 type Queue = Readonly<{ name: string; url: string }>
 const [partnerQueue, resultQueue, errorQueue, sqs] = [

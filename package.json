@@ -2,7 +2,7 @@
   "name": "webhook-handler",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm run build:config && sls webpack",
+    "build": "ENVIRONMENT=local npm run build:config && sls webpack",
     "build:config": "tsc src/config.ts",
     "clean": "skripts clean src scripts --pattern '*.js'",
     "deploy": "npm run build:config && sls deploy && npm run update:all",

@@ -1,0 +1,48 @@
+stages:
+  build:
+    nodeLabel: nvm
+    steps:
+      - |
+        . ${NVM_DIR}/nvm.sh --no-use
+        nvm install
+        npm install
+        ENVIRONMENT=devint npm test
+    filesToStash:
+      - "**"
+  prepublish:
+    nodeLabel: nvm
+    steps:
+      - |
+        . ${NVM_DIR}/nvm.sh --no-use
+        nvm install
+        npm i --no-save
+        npm run build
+    filesToStash:
+      - ".webpack/"
+  deployDevInt:
+    nodeLabel: nvm-deployer
+    steps:
+      - |
+        . ${NVM_DIR}/nvm.sh --no-use
+        nvm install
+        npm install -g npm
+        npm install -g serverless
+        DEPLOYMENT_BUCKET=dwolla-encrypted serverless deploy -v --stage devint
+  deployUat:
+    nodeLabel: nvm-deployer
+    steps:
+      - |
+        . ${NVM_DIR}/nvm.sh --no-use
+        nvm install
+        npm install -g npm
+        npm install -g serverless
+        DEPLOYMENT_BUCKET=dwolla-encrypted serverless deploy -v --stage uat
+  deployProd:
+    nodeLabel: nvm-deployer
+    steps:
+      - |
+        . ${NVM_DIR}/nvm.sh --no-use
+        nvm install
+        npm install -g npm
+        npm install -g serverless
+        DEPLOYMENT_BUCKET=dwolla-encrypted serverless deploy -v --stage prod

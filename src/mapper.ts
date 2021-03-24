@@ -5,12 +5,12 @@ import {
   SendMessageBatchRequestEntryList
 } from "aws-sdk/clients/sqs"
 import { Event, Header, IHttpReq, IHttpRes, Partitions, Req, Res } from "."
-import { partnerQueueUrl } from "./config"
+import { partnerQueueUrl, retriesMax } from "./config"
 import { epochMs, epochMsTo, now } from "./util"
 
 const PARTNER_QUEUE = partnerQueueUrl()
 const [MINS, HRS] = [60 * 1000, 3600 * 1000]
-const [MAX_RETRIES, MAX_BACKOFF] = [8, 72 * HRS]
+const [MAX_RETRIES, MAX_BACKOFF] = [retriesMax(), 72 * HRS]
 
 export const retries: { [k: string]: number } = {
   1: 15 * MINS,
@@ -74,7 +74,8 @@ export const toHttpRes = (resTs: number, code: number): IHttpRes => ({
 
 export const partition = (rs: Res[]): Partitions => {
   const retry = (r: Res) =>
-    r.req.retryCnt < 8 && (r.err || (r.httpRes && r.httpRes.statusCode >= 400))
+    r.req.retryCnt < MAX_RETRIES &&
+    (r.err || (r.httpRes && r.httpRes.statusCode >= 400))
 
   return rs.reduce(
     ([a, b], r): Partitions =>

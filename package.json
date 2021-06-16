@@ -17,7 +17,7 @@
   "dependencies": {
     "@therockstorm/utils": "^3.0.10",
     "p-limit": "^2.2.0",
-    "source-map-support": "^0.5.12"
+    "source-map-support": "^0.5.19"
   },
   "devDependencies": {
     "@types/p-limit": "^2.2.0",

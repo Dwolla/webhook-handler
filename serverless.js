@@ -10,8 +10,8 @@ module.exports = {
       Team: "growth",
       DeployJobUrl: "${env:BUILD_URL, 'n/a'}",
       "org.label-schema.vcs-url": "${env:GIT_URL, 'n/a'}",
-      "org.label-schema.vcs-ref": "${env:GIT_COMMIT, 'n/a'}"
-    }
+      "org.label-schema.vcs-ref": "${env:GIT_COMMIT, 'n/a'}",
+    },
   },
-  functions: { func: { handler: "src/handler.handle" } }
+  functions: { func: { handler: "src/handler.handle" } },
 }

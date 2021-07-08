@@ -4,28 +4,28 @@
   "scripts": {
     "build": "ENVIRONMENT=local npm run build:config && sls webpack",
     "build:config": "tsc src/config.ts",
-    "clean": "skripts clean src scripts --pattern '*.js'",
+    "clean": "skripts clean scripts --pattern '*.js'",
     "deploy": "npm run build:config && sls deploy && npm run update:all",
-    "format": "skripts prettier",
-    "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 skripts jest",
-    "lint": "skripts tslint",
+    "format": "skripts format",
+    "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest",
+    "lint": "skripts lint --fix",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
     "test": "npm run build:config && npm run lint && npm run jest && sls package",
     "update:all": "cd scripts && tsc && node updateAll.js && cd - && npm run clean",
     "watch": "npm run jest -- --watch"
   },
   "dependencies": {
-    "@therockstorm/utils": "^3.0.10",
-    "p-limit": "^2.2.0",
-    "source-map-support": "^0.5.12"
+    "@therockstorm/utils": "3.0.11",
+    "p-limit": "^2.2.1",
+    "source-map-support": "^0.5.13"
   },
   "devDependencies": {
     "@types/p-limit": "^2.2.0",
-    "aws-sdk": "^2.493.0",
-    "husky": "^3.0.0",
-    "skripts": "0.0.16",
+    "aws-sdk": "^2.512.0",
+    "husky": "^3.0.4",
+    "skripts": "^0.8.2",
     "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.9.7"
   },
   "husky": {
     "hooks": {

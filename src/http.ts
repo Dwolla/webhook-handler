@@ -14,7 +14,7 @@ export const post = (body: string, opts: RequestOptions): Promise<IHttp> =>
       reject(val)
     }
     const fn = opts.protocol === "https:" ? https : http
-    const req = fn.request(opts, r => {
+    const req = fn.request(opts, (r) => {
       r.resume()
       res({ statusCode: r.statusCode })
     })
@@ -24,6 +24,6 @@ export const post = (body: string, opts: RequestOptions): Promise<IHttp> =>
         rej(new Error(`Exceeded ${opts.timeout}ms timeout`))
       }, opts.timeout)
     }
-    req.on("error", err => (req.aborted ? null : rej(err)))
+    req.on("error", (err) => (req.aborted ? null : rej(err)))
     req.end(body)
   })

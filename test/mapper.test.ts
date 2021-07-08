@@ -14,7 +14,7 @@ import {
   toHttpRes,
   toReqs,
   toRequeue,
-  toResult
+  toResult,
 } from "../src/mapper"
 
 const NOW = "2018-12-26T16:44:38.633Z"
@@ -27,7 +27,7 @@ describe("toReqs", () => {
       event: BODY,
       requeue: false,
       requeueUntil: 0,
-      retryCnt: 0
+      retryCnt: 0,
     }
     epochMs.mockReturnValue(0)
 
@@ -35,8 +35,8 @@ describe("toReqs", () => {
       toReqs([
         {
           body: JSON.stringify(BODY),
-          messageAttributes: {}
-        } as SQSRecord
+          messageAttributes: {},
+        } as SQSRecord,
       ])
     ).toEqual([exp])
   })
@@ -46,7 +46,7 @@ describe("toReqs", () => {
       event: BODY,
       requeue: false,
       requeueUntil: 0,
-      retryCnt: 0
+      retryCnt: 0,
     }
     epochMs.mockReturnValue(0)
 
@@ -54,12 +54,12 @@ describe("toReqs", () => {
       toReqs([
         {
           body: JSON.stringify(BODY),
-          messageAttributes: {}
+          messageAttributes: {},
         },
         {
           body: JSON.stringify(BODY),
-          messageAttributes: {}
-        }
+          messageAttributes: {},
+        },
       ] as SQSRecord[])
     ).toEqual([exp])
   })
@@ -69,7 +69,7 @@ describe("toReqs", () => {
       event: BODY,
       requeue: true,
       requeueUntil: 2,
-      retryCnt: 1
+      retryCnt: 1,
     }
     epochMs.mockReturnValue(1)
     epochMsTo.mockReturnValue(0)
@@ -81,9 +81,9 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {
             requeueUntil: { stringValue: exp.requeueUntil.toString() },
-            retryCnt: { stringValue: exp.retryCnt.toString() }
-          }
-        } as SQSRecord
+            retryCnt: { stringValue: exp.retryCnt.toString() },
+          },
+        } as SQSRecord,
       ])
     ).toEqual([exp])
   })
@@ -93,7 +93,7 @@ describe("toReqs", () => {
       event: BODY,
       requeue: true,
       requeueUntil: 259200000,
-      retryCnt: 8
+      retryCnt: 8,
     }
     epochMs.mockReturnValue(1)
     epochMsTo.mockReturnValue(0)
@@ -105,9 +105,9 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {
             requeueUntil: { stringValue: (exp.requeueUntil + 1).toString() },
-            retryCnt: { stringValue: (exp.retryCnt + 1).toString() }
-          }
-        } as SQSRecord
+            retryCnt: { stringValue: (exp.retryCnt + 1).toString() },
+          },
+        } as SQSRecord,
       ])
     ).toEqual([exp])
   })
@@ -119,7 +119,7 @@ describe("toHttpReq", () => {
       body: "",
       headers: [],
       timestamp: NOW,
-      url: ""
+      url: "",
     }
     now.mockReturnValue(exp.timestamp)
 
@@ -137,9 +137,12 @@ describe("toHttpReq", () => {
     const d = new Date()
     const exp: IHttpReq = {
       body: "hi",
-      headers: [{ name: "a", value: "b" }, { name: "c", value: "d" }],
+      headers: [
+        { name: "a", value: "b" },
+        { name: "c", value: "d" },
+      ],
       timestamp: d.toISOString(),
-      url: "https://www.example.com"
+      url: "https://www.example.com",
     }
 
     expect(
@@ -154,7 +157,7 @@ describe("toHttpRes", () => {
       body: "",
       headers: [],
       statusCode: 0,
-      timestamp: NOW
+      timestamp: NOW,
     }
 
     expect(toHttpRes(undefined as any, undefined as any)).toEqual(exp)
@@ -166,7 +169,7 @@ describe("toHttpRes", () => {
       body: "",
       headers: [],
       statusCode: 200,
-      timestamp: d.toISOString()
+      timestamp: d.toISOString(),
     }
 
     expect(toHttpRes(d.getTime(), exp.statusCode)).toEqual(exp)
@@ -185,13 +188,13 @@ test("partition", () => {
     partition([requeue, error, failure, maxAttempts, success1, success2])
   ).toEqual([
     [error, failure, maxAttempts, success1, success2],
-    [requeue, error, failure]
+    [requeue, error, failure],
   ])
 })
 
 describe("toResult", () => {
   it("maps empty", () => {
-    expect(toResult((undefined as unknown) as Res[])).toEqual([])
+    expect(toResult(undefined as unknown as Res[])).toEqual([])
     expect(toResult([] as Res[])).toEqual([])
   })
 
@@ -201,12 +204,12 @@ describe("toResult", () => {
       id: "id1",
       request: { url: "url" },
       response: { statusCode: 200 },
-      retryCnt: 1
+      retryCnt: 1,
     }
     const event2 = { id: "id2" }
     const exp: SendMessageBatchRequestEntryList = [
       { Id: event1.id, MessageBody: JSON.stringify(event1) },
-      { Id: event2.id, MessageBody: JSON.stringify(event2) }
+      { Id: event2.id, MessageBody: JSON.stringify(event2) },
     ]
 
     expect(
@@ -215,9 +218,9 @@ describe("toResult", () => {
           err: event1.cause,
           httpReq: event1.request,
           httpRes: event1.response,
-          req: { event: { id: event1.id }, retryCnt: event1.retryCnt }
+          req: { event: { id: event1.id }, retryCnt: event1.retryCnt },
         },
-        { req: { event: { id: event2.id } } }
+        { req: { event: { id: event2.id } } },
       ] as Res[])
     ).toEqual(exp)
   })
@@ -225,7 +228,7 @@ describe("toResult", () => {
 
 describe("toRequeue", () => {
   it("maps empty", () => {
-    expect(toRequeue((undefined as unknown) as Res[])).toEqual([])
+    expect(toRequeue(undefined as unknown as Res[])).toEqual([])
     expect(toRequeue([] as Res[])).toEqual([])
   })
 
@@ -239,18 +242,18 @@ describe("toRequeue", () => {
         MessageAttributes: {
           partnerQueueUrl: {
             DataType: "String",
-            StringValue: "partner.com"
+            StringValue: "partner.com",
           },
           requeueUntil: {
             DataType: "Number",
-            StringValue: "900001"
+            StringValue: "900001",
           },
           retryCnt: {
             DataType: "Number",
-            StringValue: "1"
-          }
+            StringValue: "1",
+          },
         },
-        MessageBody: JSON.stringify(event1)
+        MessageBody: JSON.stringify(event1),
       },
       {
         DelaySeconds: 900,
@@ -258,19 +261,19 @@ describe("toRequeue", () => {
         MessageAttributes: {
           partnerQueueUrl: {
             DataType: "String",
-            StringValue: "partner.com"
+            StringValue: "partner.com",
           },
           requeueUntil: {
             DataType: "Number",
-            StringValue: "2"
+            StringValue: "2",
           },
           retryCnt: {
             DataType: "Number",
-            StringValue: "0"
-          }
+            StringValue: "0",
+          },
         },
-        MessageBody: JSON.stringify(event2)
-      }
+        MessageBody: JSON.stringify(event2),
+      },
     ]
     epochMsTo.mockReturnValue(1)
 
@@ -281,17 +284,17 @@ describe("toRequeue", () => {
             event: { id: event1.id, timestamp: event1.timestamp },
             requeue: false,
             requeueUntil: 1,
-            retryCnt: 0
-          }
+            retryCnt: 0,
+          },
         },
         {
           req: {
             event: { id: event2.id, timestamp: event2.timestamp },
             requeue: true,
             requeueUntil: 2,
-            retryCnt: 0
-          }
-        }
+            retryCnt: 0,
+          },
+        },
       ] as Res[])
     ).toEqual(exp)
 

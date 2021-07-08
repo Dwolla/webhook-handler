@@ -1,7 +1,7 @@
 import { error, log, warn } from "@therockstorm/utils"
 import SQS, {
   SendMessageBatchRequestEntryList as EntryList,
-  SendMessageBatchResult as BatchRes
+  SendMessageBatchResult as BatchRes,
 } from "aws-sdk/clients/sqs"
 import { Req, Res } from "."
 import { errorQueueUrl, partnerQueueUrl, resultQueueUrl } from "./config"
@@ -18,9 +18,9 @@ const [partnerQueue, resultQueue, errorQueue, sqs] = [
     httpOptions: {
       // @ts-ignore
       sslEnabled: true,
-      timeout: 5000 // Default of 120000 is > function timeout
-    }
-  })
+      timeout: 5000, // Default of 120000 is > function timeout
+    },
+  }),
 ]
 
 export const publishResults = async (
@@ -31,7 +31,7 @@ export const publishResults = async (
   return ([] as BatchRes[]).concat(
     ...(await Promise.all([
       sendBatch(resultQueue, toResult(result), rs, attempt),
-      sendBatch(partnerQueue, toRequeue(requeue), rs, attempt)
+      sendBatch(partnerQueue, toRequeue(requeue), rs, attempt),
     ]))
   )
 }
@@ -44,7 +44,7 @@ const sendBatch = async (
   es: EntryList,
   rs: Res[],
   attempt: number,
-  throwOnErr: boolean = false
+  throwOnErr = false
 ): Promise<BatchRes[]> => {
   let res: BatchRes = { Successful: [], Failed: [] }
   if (!es.length) return Promise.resolve([res])
@@ -58,21 +58,21 @@ const sendBatch = async (
   }
 
   if (res.Successful.length) {
-    log(`Sent ${q.name}`, res.Successful.map(s => s.Id).join(","))
+    log(`Sent ${q.name}`, res.Successful.map((s) => s.Id).join(","))
   }
   if (res.Failed.length) {
     if (throwOnErr) throw new Error(BATCH_ERROR)
 
     warn(
       `Failed ${q.name}, attempt=${attempt}`,
-      res.Failed.map(s => JSON.stringify(s)).join("\n")
+      res.Failed.map((s) => JSON.stringify(s)).join("\n")
     )
-    const reqs = rs.filter(r =>
-      res.Failed.map(f => f.Id).includes(r.req.event.id)
+    const reqs = rs.filter((r) =>
+      res.Failed.map((f) => f.Id).includes(r.req.event.id)
     )
     return await (attempt < 3
       ? publishResults(reqs, attempt + 1)
-      : sendErrorBatch(reqs.map(r => r.req)))
+      : sendErrorBatch(reqs.map((r) => r.req)))
   }
 
   return [res]

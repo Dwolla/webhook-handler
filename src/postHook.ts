@@ -14,7 +14,7 @@ export const postHook = async (req: Req): Promise<Res> => {
     "Content-Type": "application/json",
     "User-Agent": "dwolla-webhooks/1.1",
     "X-Dwolla-Topic": req.event.topic,
-    "X-Request-Signature-SHA-256": req.event.signatureSha256 || ""
+    "X-Request-Signature-SHA-256": req.event.signatureSha256 || "",
   }
   const start = epochMs()
 
@@ -22,28 +22,30 @@ export const postHook = async (req: Req): Promise<Res> => {
     const url = new URL(eUrl)
     log(msg)
 
-    const status = (await post(eBody, {
-      headers,
-      hostname: url.hostname,
-      method: "POST",
-      path: url.search ? `${url.pathname}${url.search}` : url.pathname,
-      port: url.port,
-      protocol: url.protocol,
-      timeout: 10000
-    })).statusCode
+    const status = (
+      await post(eBody, {
+        headers,
+        hostname: url.hostname,
+        method: "POST",
+        path: url.search ? `${url.pathname}${url.search}` : url.pathname,
+        port: url.port,
+        protocol: url.protocol,
+        timeout: 10000,
+      })
+    ).statusCode
 
     log(`${msg} status=${status} successful=${status && status < 300}`)
     return {
       httpReq: toHttpReq(eBody, headers, start, eUrl),
       httpRes: status ? toHttpRes(epochMs(), status) : undefined,
-      req
+      req,
     }
   } catch (err) {
     warn(`${msg} code=${err.code} message=${err.message}`, err)
     return {
       err: err.message,
       httpReq: toHttpReq(eBody, headers, start, eUrl),
-      req
+      req,
     }
   }
 }

@@ -13,7 +13,7 @@ describe("handler", () => {
 
   it("calls sendHooks", async () => {
     await handle({
-      Records: [{ body: "{}", messageAttributes: {} }]
+      Records: [{ body: "{}", messageAttributes: {} }],
     } as SQSEvent)
 
     expect(sendHooks).toHaveBeenCalled()
@@ -24,7 +24,7 @@ describe("handler", () => {
     sendHooks.mockRejectedValue(err)
 
     await handle({
-      Records: [{ body: "{}", messageAttributes: {} }]
+      Records: [{ body: "{}", messageAttributes: {} }],
     } as SQSEvent)
 
     expect(sendErrorBatch).toHaveBeenCalled()
@@ -36,7 +36,7 @@ describe("handler", () => {
 
     await expect(
       handle({
-        Records: [{ body: "{}", messageAttributes: {} }]
+        Records: [{ body: "{}", messageAttributes: {} }],
       } as SQSEvent)
     ).rejects.toBe(err)
 

@@ -2,7 +2,7 @@ import { log } from "@therockstorm/utils"
 import { SQSMessageAttribute, SQSRecord } from "aws-lambda"
 import {
   MessageBodyAttributeMap,
-  SendMessageBatchRequestEntryList
+  SendMessageBatchRequestEntryList,
 } from "aws-sdk/clients/sqs"
 import { Event, Header, IHttpReq, IHttpRes, Partitions, Req, Res } from "."
 import { partnerQueueUrl, retriesMax } from "./config"
@@ -20,7 +20,7 @@ export const retries: { [k: string]: number } = {
   5: 12 * HRS,
   6: 24 * HRS,
   7: 48 * HRS,
-  8: MAX_BACKOFF
+  8: MAX_BACKOFF,
 }
 
 export const toReqs = (rs: SQSRecord[]): Req[] => {
@@ -39,18 +39,15 @@ export const toReqs = (rs: SQSRecord[]): Req[] => {
       event,
       requeue: epochMs() < requeueUntil,
       requeueUntil,
-      retryCnt: toInt(r.messageAttributes.retryCnt, MAX_RETRIES)
+      retryCnt: toInt(r.messageAttributes.retryCnt, MAX_RETRIES),
     }
   }
 
-  return rs.reduce(
-    (acc, r) => {
-      const e = JSON.parse(r.body)
-      if (!acc.filter(a => a.event.id === e.id).length) acc.push(toReq(r, e))
-      return acc
-    },
-    [] as Req[]
-  )
+  return rs.reduce((acc, r) => {
+    const e = JSON.parse(r.body)
+    if (!acc.filter((a) => a.event.id === e.id).length) acc.push(toReq(r, e))
+    return acc
+  }, [] as Req[])
 }
 
 export const toHttpReq = (
@@ -62,14 +59,14 @@ export const toHttpReq = (
   body: body || "",
   headers: toHeaders(headers),
   timestamp: toIso(reqTs),
-  url: url || ""
+  url: url || "",
 })
 
 export const toHttpRes = (resTs: number, code: number): IHttpRes => ({
   body: "",
   headers: [],
   statusCode: code || 0,
-  timestamp: toIso(resTs)
+  timestamp: toIso(resTs),
 })
 
 export const partition = (rs: Res[]): Partitions => {
@@ -86,34 +83,34 @@ export const partition = (rs: Res[]): Partitions => {
 
 export const toResult = (rs: Res[]): SendMessageBatchRequestEntryList =>
   rs && rs.length
-    ? rs.map(r => ({
+    ? rs.map((r) => ({
         Id: r.req.event.id,
         MessageBody: JSON.stringify({
           cause: r.err,
           id: r.req.event.id,
           request: r.httpReq,
           response: r.httpRes,
-          retryCnt: r.req.retryCnt
-        })
+          retryCnt: r.req.retryCnt,
+        }),
       }))
     : []
 
 export const toRequeue = (rs: Res[]): SendMessageBatchRequestEntryList =>
   rs && rs.length
-    ? rs.map(r => ({
+    ? rs.map((r) => ({
         DelaySeconds: 900, // 15 mins
         Id: r.req.event.id,
         MessageAttributes: calcAttrs(r.req),
-        MessageBody: JSON.stringify(r.req.event)
+        MessageBody: JSON.stringify(r.req.event),
       }))
     : []
 
 export const toError = (reqs: Req[]) =>
   reqs && reqs.length
-    ? reqs.map(r => ({
+    ? reqs.map((r) => ({
         Id: r.event.id,
         MessageAttributes: attrs(r.retryCnt, r.requeueUntil),
-        MessageBody: JSON.stringify(r.event)
+        MessageBody: JSON.stringify(r.event),
       }))
     : []
 
@@ -131,7 +128,7 @@ const calcAttrs = (r: Req) => {
   log(
     `id=${r.event.id}`,
     Object.keys(am)
-      .map(k => `${k}=${am[k].StringValue}`)
+      .map((k) => `${k}=${am[k].StringValue}`)
       .join(" ")
   )
   return am
@@ -140,5 +137,5 @@ const calcAttrs = (r: Req) => {
 const attrs = (rc: number, ru: number): MessageBodyAttributeMap => ({
   partnerQueueUrl: { StringValue: PARTNER_QUEUE, DataType: "String" },
   requeueUntil: { StringValue: ru.toString(), DataType: "Number" },
-  retryCnt: { StringValue: rc.toString(), DataType: "Number" }
+  retryCnt: { StringValue: rc.toString(), DataType: "Number" },
 })

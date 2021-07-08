@@ -31,7 +31,7 @@ const invoke = async (fn: string) => {
   const res = await lam
     .invoke({
       FunctionName: `webhook-provisioner-${env}-${fn}`,
-      LogType: "Tail"
+      LogType: "Tail",
     })
     .promise()
   if (isError(res)) exit(res)

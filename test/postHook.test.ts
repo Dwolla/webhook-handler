@@ -23,8 +23,8 @@ const REQ = {
     id: "id",
     signatureSha256: "sig",
     topic: "top",
-    url: "https://www.example.com"
-  }
+    url: "https://www.example.com",
+  },
 } as Req
 
 const headers = (req: Req, sig?: string) => ({
@@ -32,7 +32,7 @@ const headers = (req: Req, sig?: string) => ({
   "Content-Type": "application/json",
   "User-Agent": "dwolla-webhooks/1.1",
   "X-Dwolla-Topic": req.event.topic,
-  "X-Request-Signature-SHA-256": sig
+  "X-Request-Signature-SHA-256": sig,
 })
 
 describe("postHook", () => {
@@ -45,12 +45,12 @@ describe("postHook", () => {
     const res = {
       data: "",
       headers: {},
-      statusCode: 200
+      statusCode: 200,
     }
     const exp = {
       httpReq: { url: "url" },
       httpRes: { statusCode: 200 },
-      req: REQ
+      req: REQ,
     }
     toHttpReq.mockReturnValue(exp.httpReq)
     toHttpRes.mockReturnValue(exp.httpRes)
@@ -76,7 +76,7 @@ describe("postHook", () => {
     const exp = {
       err: err.message,
       httpReq: { url: "url" },
-      req: REQ
+      req: REQ,
     }
     toHttpReq.mockReturnValue(exp.httpReq)
     post.mockRejectedValue(err)
@@ -96,7 +96,7 @@ describe("postHook", () => {
   it("sets signature to empty if not provided", async () => {
     post.mockResolvedValue({})
     const req = {
-      event: { id: "i", url: REQ.event.url, topic: "t", body: "b" }
+      event: { id: "i", url: REQ.event.url, topic: "t", body: "b" },
     } as Req
 
     await postHook(req)
@@ -113,7 +113,7 @@ describe("postHook", () => {
       path: url.pathname,
       port: url.port,
       protocol: url.protocol,
-      timeout: 10000
+      timeout: 10000,
     })
   }
 })

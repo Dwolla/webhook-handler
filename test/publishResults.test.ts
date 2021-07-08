@@ -7,7 +7,7 @@ jest.mock("aws-sdk/clients/sqs")
 jest.mock("../src/config")
 jest.mock("../src/mapper")
 jest.mock("../src/util")
-const sqs = (SQS as unknown) as jest.Mock
+const sqs = SQS as unknown as jest.Mock
 const toResult = mapper.toResult as jest.Mock
 const toRequeue = mapper.toRequeue as jest.Mock
 const toError = mapper.toError as jest.Mock
@@ -47,11 +47,11 @@ describe("publishResults", () => {
     expect(sendMessageBatch).toHaveBeenCalledTimes(2)
     expect(sendMessageBatch).toHaveBeenCalledWith({
       Entries: requeueEs,
-      QueueUrl: PARTNER_URL
+      QueueUrl: PARTNER_URL,
     })
     expect(sendMessageBatch).toHaveBeenCalledWith({
       Entries: resultEs,
-      QueueUrl: RESULT_URL
+      QueueUrl: RESULT_URL,
     })
   })
 
@@ -62,7 +62,7 @@ describe("publishResults", () => {
     const resultEs = [{ id: 2 }]
     const errorEs = [{ id: 3 }]
     sendMessageBatch.mockReturnValue({
-      promise: () => ({ Failed: [{ Id: id }], Successful: [] })
+      promise: () => ({ Failed: [{ Id: id }], Successful: [] }),
     })
     partition.mockReturnValue([result, [], []])
     toResult.mockReturnValue(resultEs)
@@ -77,12 +77,12 @@ describe("publishResults", () => {
 
     expect(partition).toHaveBeenCalledWith(rs)
     expect(toResult).toHaveBeenCalledWith(result)
-    expect(toError).toHaveBeenCalledWith(rs.map(e => e.req))
+    expect(toError).toHaveBeenCalledWith(rs.map((e) => e.req))
     expect(sendMessageBatch).toHaveBeenCalledTimes(4)
     expect(sendMessageBatch).toHaveBeenCalledWith(args)
     expect(sendMessageBatch).lastCalledWith({
       Entries: errorEs,
-      QueueUrl: ERROR_URL
+      QueueUrl: ERROR_URL,
     })
   })
 })

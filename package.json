@@ -11,7 +11,7 @@
     "lint": "skripts lint --fix",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
     "test": "npm run build:config && npm run lint && npm run jest && sls package",
-    "update:all": "cd scripts && tsc && node updateAll.js && cd - && npm run clean",
+    "update:all": "cd scripts && tsc && node updateAll.js",
     "watch": "npm run jest -- --watch"
   },
   "dependencies": {

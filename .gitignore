@@ -1,6 +1,7 @@
 .DS_Store
 event.json
 src/*.js
+scripts/*.js
 
 .idea/
 .serverless/

@@ -1,6 +1,6 @@
 # webhook-handler
 
-An AWS Lambda function that POSTs Dwolla webhook `Event`s to partner APIs and sends the result to SQS. If the API doesn't return as expected, the `Event` is requeued and retried via our [backoff schedule](https://docs.dwolla.com/#webhook-subscriptions). For details, see the [GitPitch deck](https://gitpitch.com/dwolla/webhook-handler).
+An AWS Lambda function that POSTs Dwolla webhook `Events` to partner APIs and sends the result to SQS. If the API doesn't return as expected, the `Event` is requeued and retried via our [backoff schedule](https://docs.dwolla.com/#webhook-subscriptions). For details, see the [GitPitch deck](https://gitpitch.com/dwolla/webhook-handler).
 
 ## Setup
 

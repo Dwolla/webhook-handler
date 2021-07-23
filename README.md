@@ -6,7 +6,7 @@ An AWS Lambda function that POSTs Dwolla webhook `Events` to partner APIs and se
 
 - Clone the repository and run `npm install`
 - Ensure your [AWS credentials are available](https://serverless.com/framework/docs/providers/aws/guide/credentials/)
-- Deploy with `ENVIRONMENT=your-env DEPLOYMENT_BUCKET=your-bucket npm run deploy`
+- Deploy with `ENVIRONMENT=your-env DEPLOYMENT_BUCKET=your-bucket npm run deploy`.
 - Export `PARTNER_QUEUE_URL`, `RESULT_QUEUE_URL`, and `ERROR_QUEUE_URL` with the queue URLs created in AWS.
 
 ## Developing

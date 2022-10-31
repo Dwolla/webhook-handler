@@ -13,5 +13,9 @@ module.exports = {
       "org.label-schema.vcs-ref": "${env:GIT_COMMIT, 'n/a'}",
     },
   },
+  provider: {
+    ...serverless.provider,
+    runtime: "nodejs16.x",
+  },
   functions: { func: { handler: "src/handler.handle" } },
 }

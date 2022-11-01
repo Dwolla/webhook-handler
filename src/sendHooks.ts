@@ -13,7 +13,7 @@ export const sendHooks = async (reqs: Req[]): Promise<BatchResult[]> =>
 
 const post = (r: Req) => {
   if (r.requeue) {
-    log(`Re-queuing message for id=${r.event.id}`)
+    log(`Re-queuing message for id=${r.event?.id || ""}`)
     return Promise.resolve({ req: r })
   } else {
     return postHook(r)

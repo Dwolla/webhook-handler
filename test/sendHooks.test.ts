@@ -1,5 +1,5 @@
 import { SendMessageBatchResult } from "aws-sdk/clients/sqs"
-import { Req, Res } from "../src"
+import { Req, Res, Event } from "../src"
 import * as config from "../src/config"
 import * as ph from "../src/postHook"
 import * as pr from "../src/publishResults"
@@ -12,6 +12,14 @@ const publishResults = pr.publishResults as jest.Mock
 const concurrency = config.concurrency as jest.Mock
 concurrency.mockReturnValue(1)
 import { sendHooks } from "../src/sendHooks"
+const event: Event = {
+  id: "id",
+  url: "url",
+  topic: "topic",
+  body: "body",
+  signatureSha256: "signature",
+  timestamp: "timestamp",
+}
 
 describe("sendHooks", () => {
   afterEach(() => {
@@ -20,7 +28,7 @@ describe("sendHooks", () => {
   })
 
   it("posts hook and publishes results", async () => {
-    const req = [{} as Req, { retryCnt: 1 } as Req]
+    const req = [{ event } as Req, { event, retryCnt: 1 } as Req]
     const exp = [{ Successful: [], Failed: [] }] as SendMessageBatchResult[]
     const res = [{} as Res, { err: "err" } as Res]
     postHook.mockResolvedValueOnce(res[0])
@@ -40,7 +48,7 @@ describe("sendHooks", () => {
     postHook.mockResolvedValue({} as Res)
     publishResults.mockResolvedValue(exp)
 
-    expect(await sendHooks([{ requeue: true } as Req])).toBe(exp)
+    expect(await sendHooks([{ event, requeue: true } as Req])).toBe(exp)
 
     expect(postHook).not.toHaveBeenCalled()
   })

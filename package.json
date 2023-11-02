@@ -8,7 +8,7 @@
     "deploy": "npm run build:config && sls deploy && npm run update:all",
     "format": "prettier --ignore-path .prettierignore --write \"./**/*.+(js|jsx|ts|tsx|json|yml|yaml|md|html|css|less|scss|graphql)\"",
     "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest",
-    "lint": "skripts lint --fix",
+    "lint": "eslint --fix --config .eslintrc --ext '.ts,.tsx,.js,.jsx' '.'",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
     "test": "npm run build:config && npm run lint && npm run jest && sls package",
     "update:all": "cd scripts && tsc && node updateAll.js",
@@ -21,20 +21,21 @@
   },
   "devDependencies": {
     "@types/p-limit": "^2.2.0",
-    "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "@typescript-eslint/parser": "^6.9.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
     "aws-sdk": "^2.512.0",
-    "eslint": "^8.52.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.1",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "husky": "^3.0.4",
+    "lint-staged": "^13.2.2",
     "skripts": "^0.8.2",
-    "tslint": "^5.18.0",
+    "tslint": "^5.20.1",
     "typescript": "^3.9.7"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "skripts pre-commit"
+      "__pre-commit": "npx lint-staged --config .lintstagedrc.json"
     }
   },
   "prettier": {

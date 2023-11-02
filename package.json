@@ -6,7 +6,7 @@
     "build:config": "tsc src/config.ts",
     "clean": "skripts clean scripts --pattern '*.js'",
     "deploy": "npm run build:config && sls deploy && npm run update:all",
-    "format": "skripts format",
+    "format": "prettier --ignore-path .prettierignore --write \"./**/*.+(js|jsx|ts|tsx|json|yml|yaml|md|html|css|less|scss|graphql)\"",
     "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest",
     "lint": "skripts lint --fix",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
@@ -21,7 +21,12 @@
   },
   "devDependencies": {
     "@types/p-limit": "^2.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
     "aws-sdk": "^2.512.0",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "husky": "^3.0.4",
     "skripts": "^0.8.2",
     "tslint": "^5.18.0",
@@ -31,5 +36,8 @@
     "hooks": {
       "pre-commit": "skripts pre-commit"
     }
+  },
+  "prettier": {
+    "semi": false
   }
 }

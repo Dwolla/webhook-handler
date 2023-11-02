@@ -1,4 +1,4 @@
-import { error, log } from "@therockstorm/utils"
+import { error, log } from "../src/logger"
 import { SQSEvent } from "aws-lambda"
 import { readFileSync } from "fs"
 import { createServer, IncomingMessage, ServerResponse } from "http"
@@ -17,7 +17,7 @@ const parsed = JSON.parse(readFileSync("./event.json", "utf8"))
 
 const requestHandler = async (
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
 ): Promise<void> => {
   const url = req.url || "/"
   if (req.method === "POST") {
@@ -33,32 +33,32 @@ const requestHandler = async (
 const handleReq = async (
   evt: SQSEvent,
   url: string,
-  res: ServerResponse
+  res: ServerResponse,
 ): Promise<void> => {
   try {
     if (url === "/") {
       return writeRes(
         {
           body: `Visit ${FUNCS.map((f) => f.path).join(
-            ", "
+            ", ",
           )} to invoke the corresponding Lambda function. POST an event or use the default specified in server.ts with a GET.`,
           event: evt,
           statusCode: 200,
         },
-        res
+        res,
       )
     }
     const func = FUNCS.find((f) => f.path === url)
     return writeRes(
       func ? await func.fn(evt) : { statusCode: 400, body: "Path not found" },
-      res
+      res,
     )
-  } catch (e) {
+  } catch (e: any) {
     error("handle err", e)
     return writeRes({ statusCode: 500, body: e.message }, res)
   }
 }
 
 createServer(requestHandler).listen(PORT, () =>
-  log(`Listening at http://localhost:${PORT}...`)
+  log(`Listening at http://localhost:${PORT}...`),
 )

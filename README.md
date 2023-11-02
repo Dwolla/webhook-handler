@@ -13,3 +13,16 @@ An AWS Lambda function that POSTs Dwolla webhook `Events` to partner APIs and se
 
 - Run tests, `npm test`
 - Invoke locally by editing `genEvent.ts` to your liking, running `npm run start`, and browsing to the localhost port logged.
+
+## Node version Upgrade
+
+Remove dependency on:
+
+- [ ] @therockstorm/utils
+  - [x] Logger
+  - [x] Env Variable
+- [ ] Skripts
+  - [ ] Webpack
+  - [ ] Husky
+  - [ ] EsLint
+  - [ ] Serverless

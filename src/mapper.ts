@@ -1,4 +1,4 @@
-import { log } from "@therockstorm/utils"
+import { log } from "./logger"
 import { SQSMessageAttribute, SQSRecord } from "aws-lambda"
 import {
   MessageBodyAttributeMap,

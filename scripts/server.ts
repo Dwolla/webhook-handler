@@ -1,4 +1,4 @@
-import { error, log } from "@therockstorm/utils"
+import { error, log } from "../src/logger"
 import { SQSEvent } from "aws-lambda"
 import { readFileSync } from "fs"
 import { createServer, IncomingMessage, ServerResponse } from "http"

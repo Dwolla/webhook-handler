@@ -1,7 +1,8 @@
-import { envVar, error, log } from "@therockstorm/utils"
+import { error, log } from "../src/logger"
 import Lambda, { InvocationResponse } from "aws-sdk/clients/lambda"
+import { envVarRequired } from "../src/util"
 
-const env = envVar("ENVIRONMENT")
+const env = envVarRequired("ENVIRONMENT")
 const region = process.env.AWS_REGION || "us-west-2"
 const lam = new Lambda({ region })
 

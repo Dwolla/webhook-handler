@@ -1,4 +1,4 @@
-import { log, warn } from "@therockstorm/utils"
+import { log, warn } from "./logger"
 import { URL } from "url"
 import { Req, Res } from "."
 import { post } from "./http"

@@ -1,4 +1,4 @@
-import { log } from "@therockstorm/utils"
+import { log } from "./logger"
 import { SendMessageBatchResult as BatchResult } from "aws-sdk/clients/sqs"
 import pLimit from "p-limit"
 import { Req, Res } from "."

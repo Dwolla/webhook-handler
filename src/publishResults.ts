@@ -1,4 +1,4 @@
-import { error, log, warn } from "@therockstorm/utils"
+import { error, log, warn } from "./logger"
 import SQS, {
   SendMessageBatchRequestEntryList as EntryList,
   SendMessageBatchResult as BatchRes,

@@ -1,4 +1,4 @@
-import { error, log } from "@therockstorm/utils"
+import { error, log } from "./logger"
 import { SQSEvent } from "aws-lambda"
 import { SendMessageBatchResult as BatchRes } from "aws-sdk/clients/sqs"
 import "source-map-support/register"

@@ -1,12 +1,7 @@
 import { SQSRecord } from "aws-lambda"
 import { SendMessageBatchRequestEntryList } from "aws-sdk/clients/sqs"
 import { Event, IHttpReq, IHttpRes, Req, Res } from "../src"
-import * as util from "../src/util"
-
-jest.mock("../src/util")
-const epochMs = util.epochMs as jest.Mock
-const epochMsTo = util.epochMsTo as jest.Mock
-const now = util.now as jest.Mock
+import { epochMs, epochMsTo, now } from "../src/util"
 import {
   partition,
   retries,
@@ -16,6 +11,11 @@ import {
   toRequeue,
   toResult,
 } from "../src/mapper"
+
+jest.mock("../src/util")
+const epochMsMock = jest.mocked(epochMs)
+const epochMsToMock = jest.mocked(epochMsTo)
+const nowMock = jest.mocked(now)
 
 const NOW = "2018-12-26T16:44:38.633Z"
 
@@ -29,7 +29,7 @@ describe("toReqs", () => {
       requeueUntil: 0,
       retryCnt: 0,
     }
-    epochMs.mockReturnValue(0)
+    epochMsMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -37,7 +37,7 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {},
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 
@@ -48,7 +48,7 @@ describe("toReqs", () => {
       requeueUntil: 0,
       retryCnt: 0,
     }
-    epochMs.mockReturnValue(0)
+    epochMsMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -60,7 +60,7 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {},
         },
-      ] as SQSRecord[])
+      ] as SQSRecord[]),
     ).toEqual([exp])
   })
 
@@ -71,8 +71,8 @@ describe("toReqs", () => {
       requeueUntil: 2,
       retryCnt: 1,
     }
-    epochMs.mockReturnValue(1)
-    epochMsTo.mockReturnValue(0)
+    epochMsMock.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -84,7 +84,7 @@ describe("toReqs", () => {
             retryCnt: { stringValue: exp.retryCnt.toString() },
           },
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 
@@ -95,8 +95,8 @@ describe("toReqs", () => {
       requeueUntil: 259200000,
       retryCnt: 8,
     }
-    epochMs.mockReturnValue(1)
-    epochMsTo.mockReturnValue(0)
+    epochMsMock.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -108,7 +108,7 @@ describe("toReqs", () => {
             retryCnt: { stringValue: (exp.retryCnt + 1).toString() },
           },
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 })
@@ -121,15 +121,15 @@ describe("toHttpReq", () => {
       timestamp: NOW,
       url: "",
     }
-    now.mockReturnValue(exp.timestamp)
+    nowMock.mockReturnValue(exp.timestamp)
 
     expect(
       toHttpReq(
-        undefined as any,
-        undefined as any,
-        undefined as any,
-        undefined as any
-      )
+        undefined as unknown as string,
+        undefined as unknown as { [p: string]: string },
+        undefined as unknown as number,
+        undefined as unknown as string,
+      ),
     ).toEqual(exp)
   })
 
@@ -146,7 +146,7 @@ describe("toHttpReq", () => {
     }
 
     expect(
-      toHttpReq(exp.body, { a: "b", c: "d" }, d.getTime(), exp.url)
+      toHttpReq(exp.body, { a: "b", c: "d" }, d.getTime(), exp.url),
     ).toEqual(exp)
   })
 })
@@ -160,7 +160,11 @@ describe("toHttpRes", () => {
       timestamp: NOW,
     }
 
-    expect(toHttpRes(undefined as any, undefined as any)).toEqual(exp)
+    nowMock.mockReturnValue(exp.timestamp)
+
+    expect(
+      toHttpRes(undefined as unknown as number, undefined as unknown as number),
+    ).toEqual(exp)
   })
 
   it("maps", () => {
@@ -185,7 +189,7 @@ test("partition", () => {
   const success2 = { req: { retryCnt: 7 }, httpRes: { statusCode: 399 } } as Res
 
   expect(
-    partition([requeue, error, failure, maxAttempts, success1, success2])
+    partition([requeue, error, failure, maxAttempts, success1, success2]),
   ).toEqual([
     [error, failure, maxAttempts, success1, success2],
     [requeue, error, failure],
@@ -221,7 +225,7 @@ describe("toResult", () => {
           req: { event: { id: event1.id }, retryCnt: event1.retryCnt },
         },
         { req: { event: { id: event2.id } } },
-      ] as Res[])
+      ] as Res[]),
     ).toEqual(exp)
   })
 })
@@ -275,7 +279,7 @@ describe("toRequeue", () => {
         MessageBody: JSON.stringify(event2),
       },
     ]
-    epochMsTo.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(1)
 
     expect(
       toRequeue([
@@ -295,10 +299,10 @@ describe("toRequeue", () => {
             retryCnt: 0,
           },
         },
-      ] as Res[])
+      ] as Res[]),
     ).toEqual(exp)
 
-    expect(epochMsTo).toHaveBeenCalledWith(NOW)
+    expect(epochMsToMock).toHaveBeenCalledWith(NOW)
   })
 })
 

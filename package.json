@@ -2,34 +2,47 @@
   "name": "webhook-handler",
   "version": "1.0.0",
   "scripts": {
-    "build": "ENVIRONMENT=local npm run build:config && sls webpack",
-    "build:config": "tsc src/config.ts",
-    "clean": "skripts clean scripts --pattern '*.js'",
-    "deploy": "npm run build:config && sls deploy && npm run update:all",
-    "format": "skripts format",
-    "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest",
-    "lint": "skripts lint --fix",
+    "build": "export ENVIRONMENT=local && npm run build:config && sls webpack",
+    "build:config": "tsc --project ./tsconfig.json",
+    "deploy": "npm run build:config && sls deploy",
+    "format": "prettier --ignore-path .prettierignore --write \"./**/*.+(js|jsx|ts|tsx|json|yml|yaml|md|html|css|less|scss|graphql)\"",
+    "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest --silent --verbose",
+    "lint": "eslint --fix --config .eslintrc --ext '.ts,.tsx,.js,.jsx' '.'",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
-    "test": "npm run build:config && npm run lint && npm run jest && sls package",
+    "test": "export ENVIRONMENT=devint && npm run build:config && npm run lint && npm run jest && sls package",
     "update:all": "cd scripts && tsc && node updateAll.js",
     "watch": "npm run jest -- --watch"
   },
   "dependencies": {
-    "@therockstorm/utils": "3.0.11",
-    "p-limit": "^2.2.1",
-    "source-map-support": "^0.5.13"
+    "p-limit": "^3.1.0",
+    "source-map-support": "^0.5.13",
+    "ts-loader": "^9.5.1"
   },
   "devDependencies": {
-    "@types/p-limit": "^2.2.0",
+    "@types/aws-lambda": "^8.10.71",
+    "@types/jest": "^29.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
     "aws-sdk": "^2.512.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "husky": "^3.0.4",
-    "skripts": "^0.8.2",
-    "tslint": "^5.18.0",
-    "typescript": "^3.9.7"
+    "jest": "^29.7.0",
+    "lint-staged": "^13.2.2",
+    "serverless": "^3.36.0",
+    "serverless-iam-roles-per-function": "^3.0.0-d84bffd",
+    "serverless-webpack": "^5.14.1",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.5.3",
+    "webpack-cli": "^5.1.4"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "skripts pre-commit"
+      "pre-commit": "npx lint-staged --config .lintstagedrc.json"
     }
+  },
+  "prettier": {
+    "semi": false
   }
 }

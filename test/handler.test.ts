@@ -1,38 +1,38 @@
 import { SQSEvent } from "aws-lambda"
-import * as pr from "../src/publishResults"
-import * as sh from "../src/sendHooks"
+import { sendErrorBatch, BATCH_ERROR } from "../src/publishResults"
+import { sendHooks } from "../src/sendHooks"
 
 jest.mock("../src/sendHooks")
 jest.mock("../src/publishResults")
-const sendHooks = sh.sendHooks as jest.Mock
-const sendErrorBatch = pr.sendErrorBatch as jest.Mock
+const sendHooksMock = sendHooks as jest.Mock
+const sendErrorBatchMock = sendErrorBatch as jest.Mock
 import { handle } from "../src/handler"
 
 describe("handler", () => {
-  afterEach(() => sendErrorBatch.mockReset())
+  afterEach(() => sendErrorBatchMock.mockReset())
 
   it("calls sendHooks", async () => {
     await handle({
       Records: [{ body: "{}", messageAttributes: {} }],
     } as SQSEvent)
 
-    expect(sendHooks).toHaveBeenCalled()
+    expect(sendHooksMock).toHaveBeenCalled()
   })
 
   it("calls sendErrorBatch on error", async () => {
     const err = new Error()
-    sendHooks.mockRejectedValue(err)
+    sendHooksMock.mockRejectedValue(err)
 
     await handle({
       Records: [{ body: "{}", messageAttributes: {} }],
     } as SQSEvent)
 
-    expect(sendErrorBatch).toHaveBeenCalled()
+    expect(sendErrorBatchMock).toHaveBeenCalled()
   })
 
   it("throws if BATCH_ERROR", async () => {
-    const err = new Error(pr.BATCH_ERROR)
-    sendHooks.mockRejectedValue(err)
+    const err = new Error(BATCH_ERROR)
+    sendHooksMock.mockRejectedValue(err)
 
     await expect(
       handle({
@@ -40,6 +40,6 @@ describe("handler", () => {
       } as SQSEvent)
     ).rejects.toBe(err)
 
-    expect(sendErrorBatch).not.toHaveBeenCalled()
+    expect(sendErrorBatchMock).not.toHaveBeenCalled()
   })
 })

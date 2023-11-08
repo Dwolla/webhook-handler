@@ -18,6 +18,7 @@
     "source-map-support": "^0.5.13"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.8",
     "@types/p-limit": "^2.2.0",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
@@ -26,6 +27,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^3.0.4",
+    "jest": "^26.6.3",
     "lint-staged": "^13.2.2",
     "serverless": "^3.36.0",
     "serverless-iam-roles-per-function": "^3.0.0-d84bffd",

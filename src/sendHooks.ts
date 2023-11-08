@@ -8,8 +8,11 @@ import { publishResults } from "./publishResults"
 
 const limit = pLimit(concurrency())
 
-export const sendHooks = async (reqs: Req[]): Promise<BatchResult[]> =>
-  publishResults(await Promise.all(reqs.map((r) => limit<Req[], Res>(post, r))))
+export const sendHooks = async (reqs: Req[]): Promise<BatchResult[]> => {
+  return publishResults(
+    await Promise.all(reqs.map((r) => limit<Req[], Res>(post, r)))
+  )
+}
 
 const post = (r: Req) => {
   if (r.requeue) {

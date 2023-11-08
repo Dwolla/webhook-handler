@@ -14,7 +14,6 @@
     "watch": "npm run jest -- --watch"
   },
   "dependencies": {
-    "@therockstorm/utils": "3.0.11",
     "p-limit": "^2.2.1",
     "source-map-support": "^0.5.13"
   },
@@ -33,7 +32,7 @@
     "serverless-webpack": "^5.11.0",
     "skripts": "^0.8.2",
     "tslint": "^5.20.1",
-    "typescript": "^3.9.7"
+    "typescript": "^4.8.4"
   },
   "husky": {
     "hooks": {

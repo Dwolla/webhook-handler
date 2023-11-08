@@ -17,9 +17,9 @@ module.exports = {
   provider: {
     deploymentBucket: process.env.SKRIPTS_DEPLOYMENT_BUCKET
       ? {
-        name: process.env.SKRIPTS_DEPLOYMENT_BUCKET,
-        serverSideEncryption: "AES256",
-      }
+          name: process.env.SKRIPTS_DEPLOYMENT_BUCKET,
+          serverSideEncryption: "AES256",
+        }
       : null,
     environment: { AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 },
     lambdaHashingVersion: "20201221",
@@ -34,17 +34,14 @@ module.exports = {
     timeout: 10,
   },
   package: { individually: true },
-  plugins: [
-    "serverless-iam-roles-per-function",
-    "serverless-webpack",
-  ],
+  plugins: ["serverless-iam-roles-per-function", "serverless-webpack"],
   service: "${file(./package.json):name}",
   vpc:
     process.env.SKRIPTS_VPC_SECURITY_GROUPS && process.env.SKRIPTS_VPC_SUBNETS
       ? {
-        securityGroupIds: process.env.SKRIPTS_VPC_SECURITY_GROUPS.split(","),
-        subnetIds: process.env.SKRIPTS_VPC_SUBNETS.split(","),
-      }
+          securityGroupIds: process.env.SKRIPTS_VPC_SECURITY_GROUPS.split(","),
+          subnetIds: process.env.SKRIPTS_VPC_SUBNETS.split(","),
+        }
       : null,
   functions: { func: { handler: "src/handler.handle" } },
 }

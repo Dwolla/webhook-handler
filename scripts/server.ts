@@ -53,7 +53,7 @@ const handleReq = async (
       func ? await func.fn(evt) : { statusCode: 400, body: "Path not found" },
       res
     )
-  } catch (e) {
+  } catch (e: any) {
     error("handle err", e)
     return writeRes({ statusCode: 500, body: e.message }, res)
   }

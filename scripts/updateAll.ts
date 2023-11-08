@@ -10,7 +10,7 @@ const updateAll = async () => {
   try {
     const res = await invoke("updateCode")
     log(decode(res.LogResult))
-  } catch (err) {
+  } catch (err: any) {
     exitWithErr(err)
   }
 }

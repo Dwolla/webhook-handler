@@ -40,7 +40,7 @@ export const postHook = async (req: Req): Promise<Res> => {
       httpRes: status ? toHttpRes(epochMs(), status) : undefined,
       req,
     }
-  } catch (err) {
+  } catch (err: any) {
     warn(`${msg} code=${err.code} message=${err.message}`, err)
     return {
       err: err.message,

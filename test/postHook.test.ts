@@ -1,18 +1,18 @@
 import { URL } from "url"
 import { Req } from "../src"
-import * as http from "../src/http"
-import * as mapper from "../src/mapper"
-import * as util from "../src/util"
+import { post } from "../src/http"
+import { toHttpReq, toHttpRes } from "../src/mapper"
+import { epochMs } from "../src/util"
 
 jest.mock("http")
 jest.mock("https")
 jest.mock("../src/http")
 jest.mock("../src/mapper")
 jest.mock("../src/util")
-const toHttpReq = mapper.toHttpReq as jest.Mock
-const toHttpRes = mapper.toHttpRes as jest.Mock
-const post = http.post as jest.Mock
-const epochMs = util.epochMs as jest.Mock
+const toHttpReqMock = toHttpReq as jest.Mock
+const toHttpResMock = toHttpRes as jest.Mock
+const postMock = post as jest.Mock
+const epochMsMock = epochMs as jest.Mock
 import { postHook } from "../src/postHook"
 
 const START = new Date().getTime()
@@ -37,8 +37,8 @@ const headers = (req: Req, sig?: string) => ({
 
 describe("postHook", () => {
   afterEach(() => {
-    toHttpReq.mockReset()
-    toHttpRes.mockReset()
+    toHttpReqMock.mockReset()
+    toHttpResMock.mockReset()
   })
 
   it("posts req and returns res", async () => {
@@ -52,22 +52,22 @@ describe("postHook", () => {
       httpRes: { statusCode: 200 },
       req: REQ,
     }
-    toHttpReq.mockReturnValue(exp.httpReq)
-    toHttpRes.mockReturnValue(exp.httpRes)
-    post.mockResolvedValue(res)
-    epochMs.mockReturnValueOnce(START)
-    epochMs.mockReturnValueOnce(END)
+    toHttpReqMock.mockReturnValue(exp.httpReq)
+    toHttpResMock.mockReturnValue(exp.httpRes)
+    postMock.mockResolvedValue(res)
+    epochMsMock.mockReturnValueOnce(START)
+    epochMsMock.mockReturnValueOnce(END)
 
     const act = await postHook(exp.req)
 
     expectPostReq(REQ, REQ.event.signatureSha256)
-    expect(toHttpReq).toHaveBeenCalledWith(
+    expect(toHttpReqMock).toHaveBeenCalledWith(
       REQ.event.body,
       headers(REQ, REQ.event.signatureSha256),
       START,
       REQ.event.url
     )
-    expect(toHttpRes).toHaveBeenCalledWith(END, res.statusCode)
+    expect(toHttpResMock).toHaveBeenCalledWith(END, res.statusCode)
     expect(act).toEqual(exp)
   })
 
@@ -78,14 +78,14 @@ describe("postHook", () => {
       httpReq: { url: "url" },
       req: REQ,
     }
-    toHttpReq.mockReturnValue(exp.httpReq)
-    post.mockRejectedValue(err)
-    epochMs.mockReturnValueOnce(START)
+    toHttpReqMock.mockReturnValue(exp.httpReq)
+    postMock.mockRejectedValue(err)
+    epochMsMock.mockReturnValueOnce(START)
 
     await expect(postHook(exp.req)).resolves.toEqual(exp)
 
     expectPostReq(REQ, REQ.event.signatureSha256)
-    expect(toHttpReq).toHaveBeenCalledWith(
+    expect(toHttpReqMock).toHaveBeenCalledWith(
       REQ.event.body,
       headers(REQ, REQ.event.signatureSha256),
       START,
@@ -94,7 +94,7 @@ describe("postHook", () => {
   })
 
   it("sets signature to empty if not provided", async () => {
-    post.mockResolvedValue({})
+    postMock.mockResolvedValue({})
     const req = {
       event: { id: "i", url: REQ.event.url, topic: "t", body: "b" },
     } as Req
@@ -106,7 +106,7 @@ describe("postHook", () => {
 
   const expectPostReq = (req: Req, sig?: string) => {
     const url = new URL(req.event.url)
-    expect(post).toHaveBeenCalledWith(req.event.body, {
+    expect(postMock).toHaveBeenCalledWith(req.event.body, {
       headers: headers(req, sig),
       hostname: url.hostname,
       method: "POST",

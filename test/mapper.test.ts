@@ -1,12 +1,12 @@
 import { SQSRecord } from "aws-lambda"
 import { SendMessageBatchRequestEntryList } from "aws-sdk/clients/sqs"
 import { Event, IHttpReq, IHttpRes, Req, Res } from "../src"
-import * as util from "../src/util"
+import { epochMs, epochMsTo, now } from "../src/util"
 
 jest.mock("../src/util")
-const epochMs = util.epochMs as jest.Mock
-const epochMsTo = util.epochMsTo as jest.Mock
-const now = util.now as jest.Mock
+const epochMsMock = epochMs as jest.Mock
+const epochMsToMock = epochMsTo as jest.Mock
+const nowMock = now as jest.Mock
 import {
   partition,
   retries,
@@ -29,7 +29,7 @@ describe("toReqs", () => {
       requeueUntil: 0,
       retryCnt: 0,
     }
-    epochMs.mockReturnValue(0)
+    epochMsMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -48,7 +48,7 @@ describe("toReqs", () => {
       requeueUntil: 0,
       retryCnt: 0,
     }
-    epochMs.mockReturnValue(0)
+    epochMsMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -71,8 +71,8 @@ describe("toReqs", () => {
       requeueUntil: 2,
       retryCnt: 1,
     }
-    epochMs.mockReturnValue(1)
-    epochMsTo.mockReturnValue(0)
+    epochMsMock.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -95,8 +95,8 @@ describe("toReqs", () => {
       requeueUntil: 259200000,
       retryCnt: 8,
     }
-    epochMs.mockReturnValue(1)
-    epochMsTo.mockReturnValue(0)
+    epochMsMock.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(0)
 
     expect(
       toReqs([
@@ -121,7 +121,7 @@ describe("toHttpReq", () => {
       timestamp: NOW,
       url: "",
     }
-    now.mockReturnValue(exp.timestamp)
+    nowMock.mockReturnValue(exp.timestamp)
 
     expect(
       toHttpReq(
@@ -275,7 +275,7 @@ describe("toRequeue", () => {
         MessageBody: JSON.stringify(event2),
       },
     ]
-    epochMsTo.mockReturnValue(1)
+    epochMsToMock.mockReturnValue(1)
 
     expect(
       toRequeue([
@@ -298,7 +298,7 @@ describe("toRequeue", () => {
       ] as Res[])
     ).toEqual(exp)
 
-    expect(epochMsTo).toHaveBeenCalledWith(NOW)
+    expect(epochMsToMock).toHaveBeenCalledWith(NOW)
   })
 })
 

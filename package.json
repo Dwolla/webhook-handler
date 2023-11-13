@@ -38,7 +38,7 @@
   },
   "husky": {
     "hooks": {
-      "__pre-commit": "npx lint-staged --config .lintstagedrc.json"
+      "pre-commit": "npx lint-staged --config .lintstagedrc.json"
     }
   },
   "prettier": {

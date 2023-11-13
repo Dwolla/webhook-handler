@@ -1,26 +1,26 @@
 import SQS from "aws-sdk/clients/sqs"
 import { Res } from "../src"
-import * as config from "../src/config"
-import * as mapper from "../src/mapper"
+import { partnerQueueUrl, resultQueueUrl, errorQueueUrl } from "../src/config"
+import { toResult, toRequeue, toError, partition } from "../src/mapper"
 
 jest.mock("aws-sdk/clients/sqs")
 jest.mock("../src/config")
 jest.mock("../src/mapper")
 jest.mock("../src/util")
 const sqs = SQS as unknown as jest.Mock
-const toResult = mapper.toResult as jest.Mock
-const toRequeue = mapper.toRequeue as jest.Mock
-const toError = mapper.toError as jest.Mock
-const partition = mapper.partition as jest.Mock
-const partnerQueueUrl = config.partnerQueueUrl as jest.Mock
-const resultQueueUrl = config.resultQueueUrl as jest.Mock
-const errorQueueUrl = config.errorQueueUrl as jest.Mock
+const toResultMock = toResult as jest.Mock
+const toRequeueMock = toRequeue as jest.Mock
+const toErrorMock = toError as jest.Mock
+const partitionMock = partition as jest.Mock
+const partnerQueueUrlMock = partnerQueueUrl as jest.Mock
+const resultQueueUrlMock = resultQueueUrl as jest.Mock
+const errorQueueUrlMock = errorQueueUrl as jest.Mock
 const sendMessageBatch = jest.fn()
 const [PARTNER_URL, RESULT_URL, ERROR_URL] = ["url", "resultUrl", "errorUrl"]
 sqs.mockImplementationOnce(() => ({ sendMessageBatch }))
-partnerQueueUrl.mockReturnValue(PARTNER_URL)
-resultQueueUrl.mockReturnValue(RESULT_URL)
-errorQueueUrl.mockReturnValue(ERROR_URL)
+partnerQueueUrlMock.mockReturnValue(PARTNER_URL)
+resultQueueUrlMock.mockReturnValue(RESULT_URL)
+errorQueueUrlMock.mockReturnValue(ERROR_URL)
 
 import { publishResults } from "../src/publishResults"
 
@@ -35,15 +35,15 @@ describe("publishResults", () => {
     const requeueEs = [{ id: 5 }]
     const exp = { Successful: [{}], Failed: [] }
     sendMessageBatch.mockReturnValue({ promise: () => exp })
-    partition.mockReturnValue([result, requeue])
-    toResult.mockReturnValue(resultEs)
-    toRequeue.mockReturnValue(requeueEs)
+    partitionMock.mockReturnValue([result, requeue])
+    toResultMock.mockReturnValue(resultEs)
+    toRequeueMock.mockReturnValue(requeueEs)
 
     expect(await publishResults(rs)).toEqual([exp, exp])
 
-    expect(partition).toHaveBeenCalledWith(rs)
-    expect(toResult).toHaveBeenCalledWith(result)
-    expect(toRequeue).toHaveBeenCalledWith(requeue)
+    expect(partitionMock).toHaveBeenCalledWith(rs)
+    expect(toResultMock).toHaveBeenCalledWith(result)
+    expect(toRequeueMock).toHaveBeenCalledWith(requeue)
     expect(sendMessageBatch).toHaveBeenCalledTimes(2)
     expect(sendMessageBatch).toHaveBeenCalledWith({
       Entries: requeueEs,
@@ -64,10 +64,10 @@ describe("publishResults", () => {
     sendMessageBatch.mockReturnValue({
       promise: () => ({ Failed: [{ Id: id }], Successful: [] }),
     })
-    partition.mockReturnValue([result, [], []])
-    toResult.mockReturnValue(resultEs)
-    toRequeue.mockReturnValue([])
-    toError.mockReturnValue(errorEs)
+    partitionMock.mockReturnValue([result, [], []])
+    toResultMock.mockReturnValue(resultEs)
+    toRequeueMock.mockReturnValue([])
+    toErrorMock.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(
       new Error("Failed to send error batch")
@@ -75,9 +75,9 @@ describe("publishResults", () => {
 
     const args = { Entries: resultEs, QueueUrl: RESULT_URL }
 
-    expect(partition).toHaveBeenCalledWith(rs)
-    expect(toResult).toHaveBeenCalledWith(result)
-    expect(toError).toHaveBeenCalledWith(rs.map((e) => e.req))
+    expect(partitionMock).toHaveBeenCalledWith(rs)
+    expect(toResultMock).toHaveBeenCalledWith(result)
+    expect(toErrorMock).toHaveBeenCalledWith(rs.map((e) => e.req))
     expect(sendMessageBatch).toHaveBeenCalledTimes(4)
     expect(sendMessageBatch).toHaveBeenCalledWith(args)
     expect(sendMessageBatch).lastCalledWith({

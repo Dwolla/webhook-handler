@@ -1,5 +1,3 @@
-const { serverless } = require("skripts/config")
-
 module.exports = {
   cfnRole: process.env.SKRIPTS_CFN_ROLE || null,
   custom: {
@@ -13,7 +11,7 @@ module.exports = {
       "org.label-schema.vcs-ref": "${env:GIT_COMMIT, 'n/a'}",
     },
   },
-  frameworkVersion: ">=1.0.0 <3.0.0",
+  frameworkVersion: "3",
   provider: {
     deploymentBucket: process.env.SKRIPTS_DEPLOYMENT_BUCKET
       ? {
@@ -29,7 +27,7 @@ module.exports = {
     region: "us-west-2",
     runtime: "nodejs16.x",
     stackTags: "${self:custom.tags}",
-    stage: "${opt:stage, env:STAGE, env:ENVIRONMENT}",
+    stage: "${opt:stage, env:ENVIRONMENT}",
     tags: "${self:custom.tags}",
     timeout: 10,
   },

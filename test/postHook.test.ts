@@ -3,17 +3,17 @@ import { Req } from "../src"
 import { post } from "../src/http"
 import { toHttpReq, toHttpRes } from "../src/mapper"
 import { epochMs } from "../src/util"
+import { postHook } from "../src/postHook"
 
 jest.mock("http")
 jest.mock("https")
 jest.mock("../src/http")
 jest.mock("../src/mapper")
 jest.mock("../src/util")
-const toHttpReqMock = toHttpReq as jest.Mock
-const toHttpResMock = toHttpRes as jest.Mock
-const postMock = post as jest.Mock
-const epochMsMock = epochMs as jest.Mock
-import { postHook } from "../src/postHook"
+const toHttpReqMock = jest.mocked(toHttpReq)
+const toHttpResMock = jest.mocked(toHttpRes)
+const postMock = jest.mocked(post)
+const epochMsMock = jest.mocked(epochMs)
 
 const START = new Date().getTime()
 const END = START + 1000
@@ -48,8 +48,8 @@ describe("postHook", () => {
       statusCode: 200,
     }
     const exp = {
-      httpReq: { url: "url" },
-      httpRes: { statusCode: 200 },
+      httpReq: { body: "", headers: [], timestamp: "", url: "url" },
+      httpRes: { body: "", headers: [], statusCode: 200, timestamp: "" },
       req: REQ,
     }
     toHttpReqMock.mockReturnValue(exp.httpReq)
@@ -75,7 +75,7 @@ describe("postHook", () => {
     const err = { message: "msg" }
     const exp = {
       err: err.message,
-      httpReq: { url: "url" },
+      httpReq: { body: "", headers: [], timestamp: "", url: "url" },
       req: REQ,
     }
     toHttpReqMock.mockReturnValue(exp.httpReq)

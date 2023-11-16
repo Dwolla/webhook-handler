@@ -5,7 +5,7 @@ import { post } from "./http"
 import { toHttpReq, toHttpRes } from "./mapper"
 import { epochMs } from "./util"
 
-export const postHook = async (req: Req): Promise<Res> => {
+const postHook = async (req: Req): Promise<Res> => {
   const eUrl = req.event.url
   const eBody = req.event.body
   const msg = `id=${req.event.id} url=${eUrl}`
@@ -49,3 +49,5 @@ export const postHook = async (req: Req): Promise<Res> => {
     }
   }
 }
+
+export { postHook }

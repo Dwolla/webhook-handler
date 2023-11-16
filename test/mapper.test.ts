@@ -2,11 +2,6 @@ import { SQSRecord } from "aws-lambda"
 import { SendMessageBatchRequestEntryList } from "aws-sdk/clients/sqs"
 import { Event, IHttpReq, IHttpRes, Req, Res } from "../src"
 import { epochMs, epochMsTo, now } from "../src/util"
-
-jest.mock("../src/util")
-const epochMsMock = epochMs as jest.Mock
-const epochMsToMock = epochMsTo as jest.Mock
-const nowMock = now as jest.Mock
 import {
   partition,
   retries,
@@ -16,6 +11,11 @@ import {
   toRequeue,
   toResult,
 } from "../src/mapper"
+
+jest.mock("../src/util")
+const epochMsMock = jest.mocked(epochMs)
+const epochMsToMock = jest.mocked(epochMsTo)
+const nowMock = jest.mocked(now)
 
 const NOW = "2018-12-26T16:44:38.633Z"
 
@@ -159,6 +159,8 @@ describe("toHttpRes", () => {
       statusCode: 0,
       timestamp: NOW,
     }
+
+    nowMock.mockReturnValue(exp.timestamp)
 
     expect(toHttpRes(undefined as any, undefined as any)).toEqual(exp)
   })

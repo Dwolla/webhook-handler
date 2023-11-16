@@ -1,15 +1,15 @@
 import { SQSEvent } from "aws-lambda"
 import { sendErrorBatch, BATCH_ERROR } from "../src/publishResults"
 import { sendHooks } from "../src/sendHooks"
+import { handle } from "../src/handler"
 
 jest.mock("../src/sendHooks")
 jest.mock("../src/publishResults")
 const sendHooksMock = sendHooks as jest.Mock
 const sendErrorBatchMock = sendErrorBatch as jest.Mock
-import { handle } from "../src/handler"
 
 describe("handler", () => {
-  afterEach(() => sendErrorBatchMock.mockReset())
+  // afterEach(() => jest.resetAllMocks())
 
   it("calls sendHooks", async () => {
     await handle({

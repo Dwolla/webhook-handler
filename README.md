@@ -22,7 +22,7 @@ Remove dependency on:
   - [x] Logger
   - [x] Env Variable
 - [ ] Skripts
-  - [ ] Webpack In progress 
-  - [X] Husky
-  - [X] EsLint
+  - [ ] Webpack In progress
+  - [x] Husky
+  - [x] EsLint
   - [ ] Serverless

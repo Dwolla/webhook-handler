@@ -50,7 +50,7 @@ export const toReqs = (rs: SQSRecord[]): Req[] => {
   }, [] as Req[])
 }
 
-export const toHttpReq = (
+const toHttpReq = (
   body: string,
   headers: { [k: string]: string },
   reqTs: number,
@@ -139,3 +139,5 @@ const attrs = (rc: number, ru: number): MessageBodyAttributeMap => ({
   requeueUntil: { StringValue: ru.toString(), DataType: "Number" },
   retryCnt: { StringValue: rc.toString(), DataType: "Number" },
 })
+
+export { toHttpReq }

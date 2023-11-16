@@ -1,17 +1,14 @@
 import { SendMessageBatchResult } from "aws-sdk/clients/sqs"
 import { Req, Res, Event } from "../src"
-import { concurrency } from "../src/config"
 import { postHook } from "../src/postHook"
 import { publishResults } from "../src/publishResults"
+import { sendHooks } from "../src/sendHooks"
 
-jest.mock("../src/config")
 jest.mock("../src/postHook")
 jest.mock("../src/publishResults")
-const postHookMock = postHook as jest.Mock
-const publishResultsMock = publishResults as jest.Mock
-const concurrencyMock = concurrency as jest.Mock
-concurrencyMock.mockReturnValue(1)
-import { sendHooks } from "../src/sendHooks"
+const postHookMock = jest.mocked(postHook)
+const publishResultsMock = jest.mocked(publishResults)
+
 const event: Event = {
   id: "id",
   url: "url",
@@ -23,8 +20,9 @@ const event: Event = {
 
 describe("sendHooks", () => {
   afterEach(() => {
-    postHookMock.mockReset()
-    publishResultsMock.mockReset()
+    jest.resetAllMocks()
+    //postHookMock.mockReset()
+    //publishResultsMock.mockReset()
   })
 
   it("posts hook and publishes results", async () => {

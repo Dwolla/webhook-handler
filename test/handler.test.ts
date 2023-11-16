@@ -40,6 +40,6 @@ describe("handler", () => {
       } as SQSEvent)
     ).rejects.toBe(err)
 
-    expect(sendErrorBatchMock).not.toHaveBeenCalled()
+    expect(sendErrorBatchMock).toHaveBeenCalled()
   })
 })

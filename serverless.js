@@ -20,7 +20,6 @@ module.exports = {
         }
       : null,
     environment: { AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1 },
-    lambdaHashingVersion: "20201221",
     logRetentionInDays: 365,
     memorySize: 128,
     name: "aws",

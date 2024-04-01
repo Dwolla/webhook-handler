@@ -1,4 +1,7 @@
-import SQS from "aws-sdk/clients/sqs"
+import SQS, {
+  MessageBodyAttributeMap,
+  SendMessageBatchRequestEntryList,
+} from "aws-sdk/clients/sqs"
 import { Res } from "../src"
 import { partnerQueueUrl, resultQueueUrl, errorQueueUrl } from "../src/config"
 import { toResult, toRequeue, toError, partition } from "../src/mapper"
@@ -17,6 +20,8 @@ const resultQueueUrlMock = jest.mocked(resultQueueUrl)
 const errorQueueUrlMock = jest.mocked(errorQueueUrl)
 const sendMessageBatch = jest.fn()
 const [PARTNER_URL, RESULT_URL, ERROR_URL] = ["url", "resultUrl", "errorUrl"]
+
+//TODO: RC figure out a better mock for SQS
 sqs.mockImplementationOnce(() => ({ sendMessageBatch }))
 partnerQueueUrlMock.mockReturnValue(PARTNER_URL)
 resultQueueUrlMock.mockReturnValue(RESULT_URL)
@@ -27,12 +32,45 @@ import { publishResults } from "../src/publishResults"
 describe("publishResults", () => {
   afterEach(() => sendMessageBatch.mockReset())
 
+  const generateEvent = (id: string): Readonly<Res> => {
+    return {
+      req: {
+        event: {
+          id: `Event Id ${id}`,
+          url: "someExternalUrl",
+          topic: "Topic",
+          body: "{}",
+          signatureSha256: "string",
+          timestamp: Date.now().toString(),
+        },
+        requeue: false,
+        requeueUntil: 0,
+        retryCnt: 0,
+      },
+    }
+  }
+
+  const generateSendMessageBatchRequestEntryList = (
+    req: Res[]
+  ): SendMessageBatchRequestEntryList => {
+    return req.map((r) => {
+      return {
+        DelaySeconds: 900,
+        Id: r.req.event.id,
+        MessageAttributes: undefined,
+        MessageBody: JSON.stringify(r.req.event),
+      }
+    })
+  }
+
   it("sends message batch", async () => {
     const rs = [{}] as Res[]
-    const result = [{ id: 1 }]
-    const requeue = [{ id: 2 }]
-    const resultEs = [{ id: 4 }]
-    const requeueEs = [{ id: 5 }]
+    const result: Res[] = [generateEvent("1")]
+    const requeue = [generateEvent("2")]
+    const resultEs: SendMessageBatchRequestEntryList =
+      generateSendMessageBatchRequestEntryList(result)
+    const requeueEs: SendMessageBatchRequestEntryList =
+      generateSendMessageBatchRequestEntryList(requeue)
     const exp = { Successful: [{}], Failed: [] }
     sendMessageBatch.mockReturnValue({ promise: () => exp })
     partitionMock.mockReturnValue([result, requeue])
@@ -58,15 +96,27 @@ describe("publishResults", () => {
   it("try 3 times and then throw", async () => {
     const id = "10"
     const rs = [{ req: { event: { id } } }] as Res[]
-    const result = [{ id: 1 }]
-    const resultEs = [{ id: 2 }]
-    const errorEs = [{ Id: 3, MessageAttributes: [], MessageBody: "" }]
+
+    const result = [generateEvent("1")]
+    const requeue = [generateEvent("2")]
+
+    const resultEs = generateSendMessageBatchRequestEntryList(result)
+    const requeueEs = generateSendMessageBatchRequestEntryList(requeue)
+
+    const errorEs = [
+      {
+        Id: "3",
+        MessageAttributes: {} as MessageBodyAttributeMap,
+        MessageBody: "",
+      },
+    ]
     sendMessageBatch.mockReturnValue({
       promise: () => ({ Failed: [{ Id: id }], Successful: [] }),
     })
-    partitionMock.mockReturnValue([result, [], []])
+    partitionMock.mockReturnValue([result, requeue])
     toResultMock.mockReturnValue(resultEs)
-    toRequeueMock.mockReturnValue([])
+    toRequeueMock.mockReturnValue(requeueEs)
+
     toErrorMock.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(

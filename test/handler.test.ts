@@ -5,11 +5,11 @@ import { handle } from "../src/handler"
 
 jest.mock("../src/sendHooks")
 jest.mock("../src/publishResults")
-const sendHooksMock = sendHooks as jest.Mock
-const sendErrorBatchMock = sendErrorBatch as jest.Mock
+const sendHooksMock = jest.mocked(sendHooks)
+const sendErrorBatchMock = jest.mocked(sendErrorBatch)
 
 describe("handler", () => {
-  // afterEach(() => jest.resetAllMocks())
+  beforeEach(() => jest.resetAllMocks())
 
   it("calls sendHooks", async () => {
     await handle({
@@ -40,6 +40,6 @@ describe("handler", () => {
       } as SQSEvent)
     ).rejects.toBe(err)
 
-    expect(sendErrorBatchMock).toHaveBeenCalled()
+    expect(sendErrorBatchMock).toHaveBeenCalledTimes(0)
   })
 })

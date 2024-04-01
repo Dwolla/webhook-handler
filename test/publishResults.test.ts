@@ -60,7 +60,7 @@ describe("publishResults", () => {
   }
 
   const generateSendMessageBatchRequestEntryList = (
-    req: Res[]
+    req: Res[],
   ): SendMessageBatchRequestEntryList => {
     return req.map((r) => {
       return {
@@ -123,7 +123,7 @@ describe("publishResults", () => {
     toErrorMock.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(
-      new Error("Failed to send error batch")
+      new Error("Failed to send error batch"),
     )
 
     const args = { Entries: resultEs, QueueUrl: RESULT_URL }

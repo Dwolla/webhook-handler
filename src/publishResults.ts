@@ -25,14 +25,14 @@ const [partnerQueue, resultQueue, errorQueue, sqs] = [
 
 export const publishResults = async (
   rs: Res[],
-  attempt = 1
+  attempt = 1,
 ): Promise<BatchRes[]> => {
   const [result, requeue] = partition(rs)
   return ([] as BatchRes[]).concat(
     ...(await Promise.all([
       sendBatch(resultQueue, toResult(result), rs, attempt),
       sendBatch(partnerQueue, toRequeue(requeue), rs, attempt),
-    ]))
+    ])),
   )
 }
 
@@ -44,7 +44,7 @@ const sendBatch = async (
   es: EntryList,
   rs: Res[],
   attempt: number,
-  throwOnErr = false
+  throwOnErr = false,
 ): Promise<BatchRes[]> => {
   let res: BatchRes = { Successful: [], Failed: [] }
   if (!es.length) return Promise.resolve([res])
@@ -65,10 +65,10 @@ const sendBatch = async (
 
     warn(
       `Failed ${q.name}, attempt=${attempt}`,
-      res.Failed.map((s) => JSON.stringify(s)).join("\n")
+      res.Failed.map((s) => JSON.stringify(s)).join("\n"),
     )
     const reqs = rs.filter((r) =>
-      res.Failed.map((f) => f.Id).includes(r.req.event.id)
+      res.Failed.map((f) => f.Id).includes(r.req.event.id),
     )
     return await (attempt < 3
       ? publishResults(reqs, attempt + 1)

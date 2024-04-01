@@ -37,7 +37,7 @@ describe("handler", () => {
     await expect(
       handle({
         Records: [{ body: "{}", messageAttributes: {} }],
-      } as SQSEvent)
+      } as SQSEvent),
     ).rejects.toBe(err)
 
     expect(sendErrorBatchMock).toHaveBeenCalledTimes(0)

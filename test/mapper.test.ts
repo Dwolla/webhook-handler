@@ -37,7 +37,7 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {},
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 
@@ -60,7 +60,7 @@ describe("toReqs", () => {
           body: JSON.stringify(BODY),
           messageAttributes: {},
         },
-      ] as SQSRecord[])
+      ] as SQSRecord[]),
     ).toEqual([exp])
   })
 
@@ -84,7 +84,7 @@ describe("toReqs", () => {
             retryCnt: { stringValue: exp.retryCnt.toString() },
           },
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 
@@ -108,7 +108,7 @@ describe("toReqs", () => {
             retryCnt: { stringValue: (exp.retryCnt + 1).toString() },
           },
         } as SQSRecord,
-      ])
+      ]),
     ).toEqual([exp])
   })
 })
@@ -128,8 +128,8 @@ describe("toHttpReq", () => {
         undefined as any,
         undefined as any,
         undefined as any,
-        undefined as any
-      )
+        undefined as any,
+      ),
     ).toEqual(exp)
   })
 
@@ -146,7 +146,7 @@ describe("toHttpReq", () => {
     }
 
     expect(
-      toHttpReq(exp.body, { a: "b", c: "d" }, d.getTime(), exp.url)
+      toHttpReq(exp.body, { a: "b", c: "d" }, d.getTime(), exp.url),
     ).toEqual(exp)
   })
 })
@@ -187,7 +187,7 @@ test("partition", () => {
   const success2 = { req: { retryCnt: 7 }, httpRes: { statusCode: 399 } } as Res
 
   expect(
-    partition([requeue, error, failure, maxAttempts, success1, success2])
+    partition([requeue, error, failure, maxAttempts, success1, success2]),
   ).toEqual([
     [error, failure, maxAttempts, success1, success2],
     [requeue, error, failure],
@@ -223,7 +223,7 @@ describe("toResult", () => {
           req: { event: { id: event1.id }, retryCnt: event1.retryCnt },
         },
         { req: { event: { id: event2.id } } },
-      ] as Res[])
+      ] as Res[]),
     ).toEqual(exp)
   })
 })
@@ -297,7 +297,7 @@ describe("toRequeue", () => {
             retryCnt: 0,
           },
         },
-      ] as Res[])
+      ] as Res[]),
     ).toEqual(exp)
 
     expect(epochMsToMock).toHaveBeenCalledWith(NOW)

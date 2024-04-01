@@ -10,7 +10,7 @@ const limit = pLimit(concurrency())
 
 const sendHooks = async (reqs: Req[]): Promise<BatchResult[]> => {
   return publishResults(
-    await Promise.all(reqs.map((r) => limit<Req[], Res>(post, r)))
+    await Promise.all(reqs.map((r) => limit<Req[], Res>(post, r))),
   )
 }
 

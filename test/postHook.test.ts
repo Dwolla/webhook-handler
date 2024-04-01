@@ -65,7 +65,7 @@ describe("postHook", () => {
       REQ.event.body,
       headers(REQ, REQ.event.signatureSha256),
       START,
-      REQ.event.url
+      REQ.event.url,
     )
     expect(toHttpResMock).toHaveBeenCalledWith(END, res.statusCode)
     expect(act).toEqual(exp)
@@ -89,7 +89,7 @@ describe("postHook", () => {
       REQ.event.body,
       headers(REQ, REQ.event.signatureSha256),
       START,
-      REQ.event.url
+      REQ.event.url,
     )
   })
 

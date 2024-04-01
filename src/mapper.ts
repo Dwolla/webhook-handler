@@ -32,7 +32,7 @@ export const toReqs = (rs: SQSRecord[]): Req[] => {
     }
     const requeueUntil = toInt(
       r.messageAttributes.requeueUntil,
-      epochMsTo(event.timestamp) + MAX_BACKOFF
+      epochMsTo(event.timestamp) + MAX_BACKOFF,
     )
 
     return {
@@ -54,7 +54,7 @@ const toHttpReq = (
   body: string,
   headers: { [k: string]: string },
   reqTs: number,
-  url: string
+  url: string,
 ): IHttpReq => ({
   body: body || "",
   headers: toHeaders(headers),
@@ -77,7 +77,7 @@ export const partition = (rs: Res[]): Partitions => {
   return rs.reduce(
     ([a, b], r): Partitions =>
       r.req.requeue ? [a, [...b, r]] : [[...a, r], retry(r) ? [...b, r] : b],
-    [[], []] as Partitions
+    [[], []] as Partitions,
   )
 }
 
@@ -123,13 +123,15 @@ const calcAttrs = (r: Req) => {
   const rc = r.retryCnt + (r.requeue ? 0 : 1)
   const am = attrs(
     rc,
-    r.requeue ? r.requeueUntil : epochMsTo(r.event.timestamp) + retries[rc] || 0
+    r.requeue
+      ? r.requeueUntil
+      : epochMsTo(r.event.timestamp) + retries[rc] || 0,
   )
   log(
     `id=${r.event.id}`,
     Object.keys(am)
       .map((k) => `${k}=${am[k].StringValue}`)
-      .join(" ")
+      .join(" "),
   )
   return am
 }

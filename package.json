@@ -9,7 +9,7 @@
     "jest": "PARTNER_QUEUE_URL=partner.com RESULT_QUEUE_URL=result.com ERROR_QUEUE_URL=error.com VERSION=v1 jest --silent --verbose",
     "lint": "eslint --fix --config .eslintrc --ext '.ts,.tsx,.js,.jsx' '.'",
     "start": "cd scripts && tsc && node genEvent.js && node --inspect server.js",
-    "test": "npm run build:config && npm run lint && npm run jest && sls package",
+    "test": "export ENVIRONMENT=devint && npm run build:config && npm run lint && npm run jest && sls package",
     "update:all": "cd scripts && tsc && node updateAll.js",
     "watch": "npm run jest -- --watch"
   },
@@ -26,7 +26,7 @@
     "aws-sdk": "^2.512.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-prettier": "^5.0.0",
     "husky": "^3.0.4",
     "jest": "^29.2.1",
     "lint-staged": "^13.2.2",

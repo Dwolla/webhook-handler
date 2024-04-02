@@ -125,10 +125,10 @@ describe("toHttpReq", () => {
 
     expect(
       toHttpReq(
-        undefined as any,
-        undefined as any,
-        undefined as any,
-        undefined as any,
+        undefined as unknown as string,
+        undefined as unknown as { [p: string]: string },
+        undefined as unknown as number,
+        undefined as unknown as string,
       ),
     ).toEqual(exp)
   })
@@ -162,7 +162,9 @@ describe("toHttpRes", () => {
 
     nowMock.mockReturnValue(exp.timestamp)
 
-    expect(toHttpRes(undefined as any, undefined as any)).toEqual(exp)
+    expect(
+      toHttpRes(undefined as unknown as number, undefined as unknown as number),
+    ).toEqual(exp)
   })
 
   it("maps", () => {

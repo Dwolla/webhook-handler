@@ -20,7 +20,6 @@ const resultQueueUrlMock = jest.mocked(resultQueueUrl)
 const errorQueueUrlMock = jest.mocked(errorQueueUrl)
 
 const [PARTNER_URL, RESULT_URL, ERROR_URL] = ["url", "resultUrl", "errorUrl"]
-//TODO: RC figure out a better mock for SQS
 sqs.mockImplementation(() => {
   return { sendMessageBatch: sendMessageBatchMock } as unknown as SQS
 })

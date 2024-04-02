@@ -18,7 +18,6 @@ export const handle = async (evt: SQSEvent): Promise<BatchRes[]> => {
   } catch (err: any) {
     error(name, err)
     if (err.message !== BATCH_ERROR) return sendErrorBatch(rs)
-    //TODO: RC - updated from throw to promise.reject. The expected test case did not match what what was writen
     else return Promise.reject(err) // Batch won't be deleted from queue and will be retried
   }
 }

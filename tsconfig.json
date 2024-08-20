@@ -1,4 +1,4 @@
 {
-  "extends": "./node_modules/skripts/base-tsconfig.json",
-  "include": ["src", "scripts"]
+  "extends": "./scripts/tsconfig.json",
+  "include": ["./src", "./scripts"]
 }

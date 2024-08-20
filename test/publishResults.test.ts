@@ -1,55 +1,101 @@
-import SQS from "aws-sdk/clients/sqs"
+import SQS, {
+  MessageBodyAttributeMap,
+  SendMessageBatchRequestEntryList,
+} from "aws-sdk/clients/sqs"
 import { Res } from "../src"
-import * as config from "../src/config"
-import * as mapper from "../src/mapper"
+import { partnerQueueUrl, resultQueueUrl, errorQueueUrl } from "../src/config"
+import { toResult, toRequeue, toError, partition } from "../src/mapper"
 
 jest.mock("aws-sdk/clients/sqs")
 jest.mock("../src/config")
 jest.mock("../src/mapper")
 jest.mock("../src/util")
-const sqs = SQS as unknown as jest.Mock
-const toResult = mapper.toResult as jest.Mock
-const toRequeue = mapper.toRequeue as jest.Mock
-const toError = mapper.toError as jest.Mock
-const partition = mapper.partition as jest.Mock
-const partnerQueueUrl = config.partnerQueueUrl as jest.Mock
-const resultQueueUrl = config.resultQueueUrl as jest.Mock
-const errorQueueUrl = config.errorQueueUrl as jest.Mock
-const sendMessageBatch = jest.fn()
+const sqs = jest.mocked(SQS)
+const toResultMock = jest.mocked(toResult)
+const toRequeueMock = jest.mocked(toRequeue)
+const toErrorMock = jest.mocked(toError)
+const partitionMock = jest.mocked(partition)
+const partnerQueueUrlMock = jest.mocked(partnerQueueUrl)
+const resultQueueUrlMock = jest.mocked(resultQueueUrl)
+const errorQueueUrlMock = jest.mocked(errorQueueUrl)
+
 const [PARTNER_URL, RESULT_URL, ERROR_URL] = ["url", "resultUrl", "errorUrl"]
-sqs.mockImplementationOnce(() => ({ sendMessageBatch }))
-partnerQueueUrl.mockReturnValue(PARTNER_URL)
-resultQueueUrl.mockReturnValue(RESULT_URL)
-errorQueueUrl.mockReturnValue(ERROR_URL)
+sqs.mockImplementation(() => {
+  return { sendMessageBatch: sendMessageBatchMock } as unknown as SQS
+})
+
+const sendMessageBatchMock = jest.fn()
+
+partnerQueueUrlMock.mockReturnValue(PARTNER_URL)
+resultQueueUrlMock.mockReturnValue(RESULT_URL)
+errorQueueUrlMock.mockReturnValue(ERROR_URL)
 
 import { publishResults } from "../src/publishResults"
 
 describe("publishResults", () => {
-  afterEach(() => sendMessageBatch.mockReset())
+  beforeEach(() => {
+    sqs.mockReset()
+    sendMessageBatchMock.mockReset()
+    jest.clearAllMocks()
+  })
+  afterEach(() => sendMessageBatchMock.mockReset())
+
+  const generateEvent = (id: string): Readonly<Res> => {
+    return {
+      req: {
+        event: {
+          id: `Event Id ${id}`,
+          url: "someExternalUrl",
+          topic: "Topic",
+          body: "{}",
+          signatureSha256: "string",
+          timestamp: Date.now().toString(),
+        },
+        requeue: false,
+        requeueUntil: 0,
+        retryCnt: 0,
+      },
+    }
+  }
+
+  const generateSendMessageBatchRequestEntryList = (
+    req: Res[],
+  ): SendMessageBatchRequestEntryList => {
+    return req.map((r) => {
+      return {
+        DelaySeconds: 900,
+        Id: r.req.event.id,
+        MessageAttributes: undefined,
+        MessageBody: JSON.stringify(r.req.event),
+      }
+    })
+  }
 
   it("sends message batch", async () => {
     const rs = [{}] as Res[]
-    const result = [{ id: 1 }]
-    const requeue = [{ id: 2 }]
-    const resultEs = [{ id: 4 }]
-    const requeueEs = [{ id: 5 }]
+    const result: Res[] = [generateEvent("1")]
+    const requeue = [generateEvent("2")]
+    const resultEs: SendMessageBatchRequestEntryList =
+      generateSendMessageBatchRequestEntryList(result)
+    const requeueEs: SendMessageBatchRequestEntryList =
+      generateSendMessageBatchRequestEntryList(requeue)
     const exp = { Successful: [{}], Failed: [] }
-    sendMessageBatch.mockReturnValue({ promise: () => exp })
-    partition.mockReturnValue([result, requeue])
-    toResult.mockReturnValue(resultEs)
-    toRequeue.mockReturnValue(requeueEs)
+    sendMessageBatchMock.mockReturnValue({ promise: () => exp })
+    partitionMock.mockReturnValue([result, requeue])
+    toResultMock.mockReturnValue(resultEs)
+    toRequeueMock.mockReturnValue(requeueEs)
 
     expect(await publishResults(rs)).toEqual([exp, exp])
 
-    expect(partition).toHaveBeenCalledWith(rs)
-    expect(toResult).toHaveBeenCalledWith(result)
-    expect(toRequeue).toHaveBeenCalledWith(requeue)
-    expect(sendMessageBatch).toHaveBeenCalledTimes(2)
-    expect(sendMessageBatch).toHaveBeenCalledWith({
+    expect(partitionMock).toHaveBeenCalledWith(rs)
+    expect(toResultMock).toHaveBeenCalledWith(result)
+    expect(toRequeueMock).toHaveBeenCalledWith(requeue)
+    expect(sendMessageBatchMock).toHaveBeenCalledTimes(2)
+    expect(sendMessageBatchMock).toHaveBeenCalledWith({
       Entries: requeueEs,
       QueueUrl: PARTNER_URL,
     })
-    expect(sendMessageBatch).toHaveBeenCalledWith({
+    expect(sendMessageBatchMock).toHaveBeenCalledWith({
       Entries: resultEs,
       QueueUrl: RESULT_URL,
     })
@@ -58,19 +104,25 @@ describe("publishResults", () => {
   it("try 3 times and then throw", async () => {
     const id = "10"
     const rs = [{ req: { event: { id } } }] as Res[]
-    const result = [{ id: 1 }]
-    const resultEs = [{ id: 2 }]
-    const errorEs = [{ id: 3 }]
-    sendMessageBatch.mockReturnValue({
+    const result = [generateEvent("1")]
+    const resultEs = generateSendMessageBatchRequestEntryList(result)
+    const errorEs = [
+      {
+        Id: id,
+        MessageAttributes: {} as MessageBodyAttributeMap,
+        MessageBody: "message body",
+      },
+    ]
+    sendMessageBatchMock.mockReturnValue({
       promise: () => ({ Failed: [{ Id: id }], Successful: [] }),
     })
-    partition.mockReturnValue([result, [], []])
-    toResult.mockReturnValue(resultEs)
-    toRequeue.mockReturnValue([])
-    toError.mockReturnValue(errorEs)
+    partitionMock.mockReturnValue([result, []])
+    toResultMock.mockReturnValue(resultEs)
+    toRequeueMock.mockReturnValue([])
+    toErrorMock.mockReturnValue(errorEs)
 
     await expect(publishResults(rs)).rejects.toEqual(
-      new Error("Failed to send error batch")
+      new Error("Failed to send error batch"),
     )
 
     const args = { Entries: resultEs, QueueUrl: RESULT_URL }
@@ -78,9 +130,9 @@ describe("publishResults", () => {
     expect(partition).toHaveBeenCalledWith(rs)
     expect(toResult).toHaveBeenCalledWith(result)
     expect(toError).toHaveBeenCalledWith(rs.map((e) => e.req))
-    expect(sendMessageBatch).toHaveBeenCalledTimes(4)
-    expect(sendMessageBatch).toHaveBeenCalledWith(args)
-    expect(sendMessageBatch).lastCalledWith({
+    expect(sendMessageBatchMock).toHaveBeenCalledTimes(4)
+    expect(sendMessageBatchMock).toHaveBeenCalledWith(args)
+    expect(sendMessageBatchMock).lastCalledWith({
       Entries: errorEs,
       QueueUrl: ERROR_URL,
     })

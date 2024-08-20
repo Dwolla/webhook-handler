@@ -2,6 +2,7 @@
 event.json
 src/*.js
 scripts/*.js
+scripts/*.js.map
 
 .idea/
 .serverless/
